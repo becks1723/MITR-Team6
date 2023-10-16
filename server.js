@@ -12,18 +12,32 @@ app.use(express.json());
 
 //MongoDB connection
 const mongoose = require('mongoose');
-// mongoose.connect("link to cluster here")
+//Might need to change this user from jyoungbar02 to some sort of admin account to hand over
+mongoose.connect("mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/?retryWrites=true&w=majority");
 const schema = new mongoose.Schema({index: Number/*,*/ /*put incentive data here*/});
-// const Model = mongoose.model('name of db here', schema)
+const Adder = mongoose.model('Adders', schema);
+const EC = mongoose.model('Energy-Communities', schema);
+const TC = mongoose.model('Tribal-Communities', schema);
+const timeSchema = new mongoose.Schema({milliseconds: {type: Number, required: true}, year: {type: Number, required: true}, month: {type: Number, required: true}, day: {type: Number, required: true}});
+const LastUpdated = mongoose.model('Last-Updated', timeSchema);
 
 //serve front end
 app.get('/*', (req, res) => {
     //maybe refresh database here
-
+    refreshDB();
     //make sure to build the front end in order to serve
     res.sendFile(__dirname + '/team6/build/index.html');
 });
 
+
+//refresh database
+async function refreshDB() {
+    const today = new Date();
+    if(await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec() != []) {
+        console.log("works");
+        console.log(await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec());
+    }
+}
 
 //all incentives endpoint
 //types is an array, with possible values of 'A', 'C', 'T'
