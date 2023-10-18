@@ -2,8 +2,10 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from './pages/Home';
+import Map from './pages/Map';
 import { ChakraProvider } from '@chakra-ui/react'
 import customTheme from "./utils/themes";
+import './index.css';
 
 function App() {
     return (
@@ -12,6 +14,7 @@ function App() {
           <Header />
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/map" element={<Map />} />
             </Routes>
           <Footer />
         </Router>
