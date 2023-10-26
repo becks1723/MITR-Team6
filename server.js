@@ -13,16 +13,17 @@ app.use(express.json());
 //MongoDB connection
 const mongoose = require('mongoose');
 //Might need to change this user from jyoungbar02 to some sort of admin account to hand over
-mongoose.connect("mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/?retryWrites=true&w=majority");
+// mongoose.connect("mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/?retryWrites=true&w=majority");
+const connection = mongoose.createConnection("mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/?retryWrites=true&w=majority");
 const schema = new mongoose.Schema({index: Number/*,*/ /*put incentive data here*/});
 const Adder = mongoose.model('Adders', schema);
 const EC = mongoose.model('Energy-Communities', schema);
 const TC = mongoose.model('Tribal-Communities', schema);
-const timeSchema = new mongoose.Schema({milliseconds: {type: Number, required: true}, year: {type: Number, required: true}, month: {type: Number, required: true}, day: {type: Number, required: true}});
-const LastUpdated = mongoose.model('Last-Updated', timeSchema);
+const timeSchema = new mongoose.Schema({/*_id: {type: ObjectID, required: true}, index: {type: Int32, required: true},*/ milliseconds: {type: Number/*INT32*/, required: true}, year: {type: Number/*INT32*/, required: true}, month: {type: Number/*INT32*/, required: true}, day: {type: Number/*INT32*/, required: true}});
+const LastUpdated = /*mongoose*/connection.model('Last-Updated', timeSchema);
 
 //serve front end
-app.get('/*', (req, res) => {
+app.get('*', (req, res) => {
     //maybe refresh database here
     refreshDB();
     //make sure to build the front end in order to serve
@@ -33,7 +34,10 @@ app.get('/*', (req, res) => {
 //refresh database
 async function refreshDB() {
     const today = new Date();
-    if(await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec() != []) {
+    const data = await /*new LastUpdated({milliseconds: today.getTime(), year: today.getFullYear(), month: today.getMonth(), day: today.getDate()});*/ LastUpdated.find();
+    console.log(data);
+    // await data.save();
+    if((await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec()) != []) {
         console.log("works");
         console.log(await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec());
     }
