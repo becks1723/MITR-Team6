@@ -1,87 +1,56 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import styled from 'styled-components';
+import {
+  FormControl,
+  FormLabel,
+  Button,
+  Input
+} from '@chakra-ui/react'
+import mini from '../assets/mini-zip.geojson';
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmVraTE3MjMiLCJhIjoiY2xubmN0aHR0MDN3dDJscDFjb3dwcnJ2biJ9.7yw3B1pSgWFIC425BveDOQ';
 
-// Create styled components
-const Topbar = styled.div`
-  background-color: #333;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
-`;
-
-const Sidebar = styled.div`
-  width: 20%;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  padding: 10px;
-`
-
-const Incentive1 = styled.section`
-  height: 26%;
-  border: 2px solid red;
-  border-radius: 15px;
-  margin: 10px;
-  background-color: #fc00002f;
-`
-
-const Incentive2 = styled.section`
-  height: 26%;
-  border: 2px solid blue;
-  border-radius: 15px;
-  margin: 10px;
-  background-color: #3700fc2e;
-`
-
-const Incentive3 = styled.section`
-  height: 26%;
-  border: 2px solid green;
-  border-radius: 15px;
-  margin: 10px;
-  background-color: #00fc082e;
-`
-
-const IncentiveHeader = styled.h1`
-  font-weight: bolder;
-  font-size: large;
-`
-
-const IncentiveText = styled.p`
-  
-`
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-`
-
-const MapContainer = styled.div`
-  min-height: 500px;
-  width: 75%;
-  padding: 20px;
-  border-radius: 15px;
-`;
-
-const AppContainer = styled.div`
-  min-height: calc( 100vh - 150px );
-`;
 
 export default function Map() {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const [lng, setLng] = useState(-70.9);
-  const [lat, setLat] = useState(42.35);
-  const [zoom, setZoom] = useState(9);
+  const [lng, setLng] = useState(-121.9);
+  const [lat, setLat] = useState(37.35);
+  const [zoom, setZoom] = useState(12);
 
+  function addLayer() {
+    map.current.addSource("zipcode", {
+      type: "geojson",
+      data: mini
+    });
+
+    map.current.addLayer(
+      {
+        id: "zipcode",
+        type: "fill",
+        source: "zipcode",
+        paint: {
+          "fill-color": "#CCCCCC",
+          "fill-opacity": 0.5
+        }
+      },
+    );
+
+      console.log(mini);
+  }
+  
   useEffect(() => {
-    if (map.current) return; // initialize map only once
+    if (map.current) return; 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [lng, lat],
       zoom: zoom
+    });
+
+    map.current.on('load', () => {
+      // The map style is now loaded, so it's safe to add the layer
+      addLayer();
     });
 
     map.current.on('move', () => {
@@ -94,10 +63,24 @@ export default function Map() {
   return (
     <AppContainer>
       <Topbar>
-        Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
+          <FormControl>
+            <Search>
+              <FormLabel> <Subheader>Enter Address</Subheader></FormLabel>
+              <Inputdiv>
+                <Input  placeholder="San Jose, 95101"
+                        type="text"/>
+              </Inputdiv>
+              <Button colorScheme='purple' type='submit'>
+              Submit
+              </Button>
+            </Search>
+          </FormControl>
       </Topbar>
       <Row>
         <Sidebar>
+          <LongLat>
+            Longitude: {lng}  <br/> Latitude: {lat} <br/> Zoom: {zoom}
+          </LongLat>
           <Incentive1>
             <IncentiveHeader>
               Incentive 1
@@ -123,8 +106,104 @@ export default function Map() {
             </IncentiveText>
           </Incentive3>
         </Sidebar>
-        <MapContainer ref={mapContainer} />
+        <MapCanvas ref={mapContainer} />
       </Row>
     </AppContainer>
   );
 }
+
+// Create styled components
+const Topbar = styled.div`
+  border-top: solid #791E94 1px;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+  justify-content: center;
+`
+
+const Search = styled.div`
+  width: 70%;
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const Inputdiv = styled.div`
+  width: 70%;
+`
+
+const Sidebar = styled.div`
+  width: 20%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 10px;
+  height: 90%;
+  justify-content: space-between;
+`
+
+const LongLat = styled.div`
+  background-color: #791E94;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  border-radius: 12px;
+  font-size: small;
+`;
+
+const Incentive1 = styled.section`
+  border: 2px solid #EF476F;
+  border-radius: 12px;
+  margin: 10px;
+  background-color: #EF476F70;
+`
+
+const Incentive2 = styled.section`
+  border: 2px solid #26547C;
+  border-radius: 12px;
+  margin: 10px;
+  background-color: #26547C70;
+`
+
+const Incentive3 = styled.section`
+  border: 2px solid #FFD166;
+  border-radius: 12px;
+  margin: 10px;
+  background-color: #FFD16670;
+`
+
+const IncentiveHeader = styled.h1`
+  font-weight: bolder;
+  font-size: large;
+`
+
+const IncentiveText = styled.p`
+  
+`
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-items: center;
+`
+
+const MapCanvas = styled.div`
+  min-height: 500px;
+  width: 100%;
+  padding: 10px 10px 0 0;
+`
+
+const AppContainer = styled.div`
+  min-height: calc( 100vh - 150px );
+  padding:  0 0 20px 0;
+  border-bottom: solid #791E94 1px;
+`
+
+const Subheader = styled.h2`
+  font-size: 18px;
+  font-weight: bolder;
+  color: black;
+`

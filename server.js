@@ -16,6 +16,7 @@ const mongoose = require('mongoose');
 const schema = new mongoose.Schema({index: Number/*,*/ /*put incentive data here*/});
 // const Model = mongoose.model('name of db here', schema)
 
+
 //serve front end
 app.get('/*', (req, res) => {
     //maybe refresh database here

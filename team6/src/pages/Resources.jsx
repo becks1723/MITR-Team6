@@ -9,7 +9,7 @@ function Resources() {
     <HomeContainer >
       <InnerHomeContainer>
         <Header>Resources</Header>
-        <p>Here are all the links we used you can find one here:</p>
+        <Subheader>Interested in learning more?</Subheader>
         <a href="https://www.google.com">Google</a>
         <br />
         <p>Here's another:</p>
@@ -50,7 +50,7 @@ const Header = styled.h1`
 `
 
 const Subheader = styled.h2`
-  font-size: 30px;
+  font-size: 20px;
   font-weight: bold;
   margin: auto;
   margin-bottom: 20px;
