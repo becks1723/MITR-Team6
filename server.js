@@ -22,6 +22,59 @@ const TC = mongoose.model('Tribal-Communities', schema);
 const timeSchema = new mongoose.Schema({/*_id: {type: ObjectID, required: true}, index: {type: Int32, required: true},*/ milliseconds: {type: Number/*INT32*/, required: true}, year: {type: Number/*INT32*/, required: true}, month: {type: Number/*INT32*/, required: true}, day: {type: Number/*INT32*/, required: true}});
 const LastUpdated = /*mongoose*/connection.model('Last-Updated', timeSchema);
 
+const fs = require("fs");
+const { parse } = require("csv-parse");
+app.use(bodyParser.json());
+const path = require('path');
+fs.createReadStream("./data/mydata.csv")
+  .pipe(parse({ delimiter: ",", from_line: 2 }))
+  .on("data", async function (row) {
+//    Create an instance of the DataPath model and save the data to the database
+    const data = new PowerPlant({
+      country: row[0],
+      country_long: row[1],
+      name: row[2],
+      gppd_idnr: row[3],
+      capacity_mw: row[4],
+      latitude: row[5],
+      longitude: row[6],
+      primary_fuel: row[7],
+      other_fuel1: row[8],
+      other_fuel2: row[9],
+      other_fuel3: row[10],
+      commissioning_year: row[11],
+      owner: row[12],
+      source: row[13],
+      url: row[14],
+      geolocation_source: row[15],
+      wepp_id: row[16],
+      year_of_capacity_data: row[17],
+      generation_gwh_2013: row[18],
+      generation_gwh_2014: row[19],
+      generation_gwh_2015: row[20],
+      generation_gwh_2016: row[21],
+      generation_gwh_2017: row[22],
+      generation_gwh_2018: row[23],
+      generation_gwh_2019: row[24],
+      generation_data_source: row[25],
+      estimated_generation_gwh_2013: row[26],
+      estimated_generation_gwh_2014: row[27],
+      estimated_generation_gwh_2015: row[28],
+      estimated_generation_gwh_2016: row[29],
+      estimated_generation_gwh_2017: row[30],
+      estimated_generation_note_2013: row[31],
+      estimated_generation_note_2014: row[32],
+      estimated_generation_note_2015: row[33],
+      estimated_generation_note_2016: row[34],
+      estimated_generation_note_2017: row[35],
+    });
+//     console.log(data.country_long);
+//     // await data.save(); // Save the data to the databaseß
+  })
+  .on("end", function () {
+    console.log("done");
+  });
+
 //serve front end
 app.get('*', (req, res) => {
     //maybe refresh database here
