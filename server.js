@@ -42,7 +42,7 @@ async function refreshDB() {
         console.log(await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec());
     }
 }
-
+//test
 //all incentives endpoint
 //types is an array, with possible values of 'A', 'C', 'T'
 app.get('/all/:types?', async function(req, res) {
