@@ -9,7 +9,6 @@ import {
   Radio, 
   Stack
 } from '@chakra-ui/react'
-import zipcodes from '../assets/zipcodes.geojson';
 
 function Test() {
 
@@ -21,18 +20,7 @@ function Test() {
     e.preventDefault();
     console.log(`Address: ${address}`);
     var ZorC = value === 'Zip Code' ? true : false;
-    findCoordinates(address, ZorC)
-};
-
-
-  function findCoordinates(address, ZorC) {
-    if (!ZorC) {
-      //if we are not using zipcode
-    } else {
-      //Input is in zipcode format
-      
-    }
-  }
+  };
 
 
   return (

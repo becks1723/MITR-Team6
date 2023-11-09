@@ -2,21 +2,24 @@
 const express = require('express')
 const app = express()
 const {MongoClient} = require('mongodb');
-//var d3 = require("d3");
 
+const port = 5000
 
-const port = 3000
-
-const uri = "mongodb+srv://chenb9:123123123@zipcode.tiis4hg.mongodb.net/";
+const uri = "mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/";
 const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+
+var json1 = require('./zipcodes-ny.json');
+var json2 = require('./zipcodes-ca.json');
+var json3 = require('./zipcodes-fl.json');
+var json4 = require('./zipcodes-il.json');
+
 
 //This part of the code connects to the backend!
 
 async function main() {
   try {
     await client.connect();
-    //await dataAddTest(client);
-    //await dataAddMass(client);
+    //await dataMassAdd(client);
   } catch (e) {
     console.error(e);
     console.log("not working");
@@ -28,55 +31,73 @@ main().catch(console.error);
 
 //------------------------------------------------------------------------------------------------------------------
 
-//Adding in the data from the geojson
-async function dataAddTest(client) {
+async function dataMassAdd(client) {
+  const database = client.db("zipcodes");
+  const collect = database.collection("zip");
 
-}
-
-async function dataAddMass(client) {
-
-
-}
-
-
-async function massDataOpenMeteo(client) {
-  const database = client.db("WebSci");
-  const collect = database.collection("Lab6");
-  for(var i = 200; i < 300; i++) {
-    //Generating random numbers for longitude and latitude
-    var lon = Math.random() * (180 - -180) + -180;
-    lon = Math.round(lon * 100) / 100
-    var lat = Math.random() * (90 - -90) + -90;
-    lat = Math.round(lat * 100) / 100
+  for (const feature of json1.features) {
     try {
-      const data = await fetch("https://api.open-meteo.com/v1/forecast?latitude="+ lat +"&longitude="+ lon +"&temperature_unit=fahrenheit&current_weather=true");
-      const dataParsed = await data.json();
-      // console.log(dataParsed);
-      const lon1 = dataParsed.longitude;
-      const lat1 = dataParsed.latitude;
-      const temp = dataParsed.current_weather.temperature;
-      //console.log(coord, weather, temp);
       await collect.insertOne({
-        key: i,
-        longitude: lon1,
-        latitude: lat1,
-        temperature: temp,
+        "type": "FeatureCollection",
+        "name": "zipcodes",
+        "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4269" } },
+        "features": [feature] // Insert each feature separately
       });
-    }
-    catch(error) {
-      i--;
+    } catch (error) {
+      console.error("Error inserting feature:", error);
     }
   }
+
+  for (const feature of json2.features) {
+    try {
+      await collect.insertOne({
+        "type": "FeatureCollection",
+        "name": "zipcodes",
+        "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4269" } },
+        "features": [feature] // Insert each feature separately
+      });
+    } catch (error) {
+      console.error("Error inserting feature:", error);
+    }
+  }
+
+  for (const feature of json3.features) {
+    try {
+      await collect.insertOne({
+        "type": "FeatureCollection",
+        "name": "zipcodes",
+        "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4269" } },
+        "features": [feature] // Insert each feature separately
+      });
+    } catch (error) {
+      console.error("Error inserting feature:", error);
+    }
+  }
+
+  for (const feature of json4.features) {
+    try {
+      await collect.insertOne({
+        "type": "FeatureCollection",
+        "name": "zipcodes",
+        "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::4269" } },
+        "features": [feature] // Insert each feature separately
+      });
+    } catch (error) {
+      console.error("Error inserting feature:", error);
+    }
+  }
+
 }
+
 
 //------------------------------------------------------------------------------------------------------------------
 
-app.get("/db/:number", async function (req, res) {
-  var totalNumber = req.params.number;
+app.get("/zipcode/:number", async function (req, res) {
+  var zip = req.params.number;
   await client.connect();
-  const database = client.db("WebSci");
-  const collect = database.collection("Lab6");
-  var obj = await collect.findOne({key: parseInt(totalNumber)});
+  const database = client.db("zipcodes");
+  const collect = database.collection("zip");
+  var obj = await collect.findOne({ "features.properties.ZCTA5CE20" : zip});
   if(!obj) {
     res.send("Object Not Found!").status(404);
   } else {

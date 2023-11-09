@@ -7,9 +7,7 @@ import {
   Button,
   Input
 } from '@chakra-ui/react'
-import mini from '../assets/mini-zip.geojson';
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmVraTE3MjMiLCJhIjoiY2xubmN0aHR0MDN3dDJscDFjb3dwcnJ2biJ9.7yw3B1pSgWFIC425BveDOQ';
-
 
 export default function Map() {
   const mapContainer = useRef(null);
@@ -17,26 +15,65 @@ export default function Map() {
   const [lng, setLng] = useState(-121.9);
   const [lat, setLat] = useState(37.35);
   const [zoom, setZoom] = useState(12);
+  const [address, setAddress] = React.useState('');
+  const [mini, setMini] = React.useState({"_id" : 0, "features": [ { "type": "Feature", "properties": { "fid": 1, "ZCTA5CE20": "0"}}]});
+  const [count, setCount] = useState(0);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(`Address: ${address}`);
+    try {
+      let result = await fetch('http://localhost:5000/zipcode/' + address, { method: 'GET', mode: 'cors' });
+      if (!result.ok) {
+        throw new Error(`Failed with status ${result.status}`);
+      }
+      let data = await result.json();
+      setMini(data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  };
+
+  React.useEffect(() => {
+    if(map.current) {
+    console.log(mini); // This will log the updated value of mini when it changes
+    addLayer(); // Perform other actions after mini state update
+    }
+  }, [mini]);
 
   function addLayer() {
-    map.current.addSource("zipcode", {
+    if (!map.current || !map.current.isStyleLoaded()) {
+      return; // Map or map style not loaded yet
+    }
+
+    console.log("zipcode:", mini.features[0].properties.ZCTA5CE20);
+   
+    var c = mini._id + "" + count;
+    setCount(count + 1);
+    var idStr = mini._id === 0 ? "0" : c;
+    var sourceStr = mini.features[0].properties.ZCTA5CE20 === "0" ? "0" : c;
+
+    map.current.addSource(sourceStr, {
       type: "geojson",
       data: mini
     });
 
     map.current.addLayer(
       {
-        id: "zipcode",
+        id: idStr,
         type: "fill",
-        source: "zipcode",
+        source: sourceStr,
         paint: {
-          "fill-color": "#CCCCCC",
-          "fill-opacity": 0.5
+          "fill-color": "#ED00FE",
+          "fill-opacity": 0.8
         }
       },
     );
-
-      console.log(mini);
+    map.current.flyTo({
+      center: [mini.features[0].properties.INTPTLON20, mini.features[0].properties.INTPTLAT20],
+      zoom: 9
+    });
+    console.log(mini);
   }
   
   useEffect(() => {
@@ -46,11 +83,6 @@ export default function Map() {
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [lng, lat],
       zoom: zoom
-    });
-
-    map.current.on('load', () => {
-      // The map style is now loaded, so it's safe to add the layer
-      addLayer();
     });
 
     map.current.on('move', () => {
@@ -63,18 +95,22 @@ export default function Map() {
   return (
     <AppContainer>
       <Topbar>
+      <form onSubmit={handleSubmit}>
           <FormControl>
             <Search>
-              <FormLabel> <Subheader>Enter Address</Subheader></FormLabel>
+              <FormLabel> <Subheader>Enter Zip Code</Subheader></FormLabel>
               <Inputdiv>
-                <Input  placeholder="San Jose, 95101"
-                        type="text"/>
+                <Input  placeholder= "12180"
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}/>
               </Inputdiv>
               <Button colorScheme='purple' type='submit'>
-              Submit
+                Submit
               </Button>
             </Search>
           </FormControl>
+        </form>
       </Topbar>
       <Row>
         <Sidebar>
@@ -191,7 +227,7 @@ const Row = styled.div`
 `
 
 const MapCanvas = styled.div`
-  min-height: 500px;
+  min-height: calc( 100vh - 160px );
   width: 100%;
   padding: 10px 10px 0 0;
 `
