@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import bgPhoto from "../assets/san-jose.png";
-import { ReactComponent as Logo } from "../crown.svg";
-
 function Resources() {
 
   return (
@@ -10,10 +8,14 @@ function Resources() {
       <InnerHomeContainer>
         <Header>Resources</Header>
         <Subheader>Interested in learning more?</Subheader>
-        <a href="https://www.google.com">Google</a>
-        <br />
-        <p>Here's another:</p>
-        <a href="https://www.google.com">Google</a>
+            <Subsubheader>Tax Credits and Incentives:</Subsubheader>
+            <a href='https://www.irs.gov/credits-deductions/residential-clean-energy-credit'>IRS</a>
+            <br/>
+            <Subsubheader>Energy Communities:</Subsubheader>
+            <a href='https://energycommunities.gov/energy-community-tax-credit-bonus/#:~:text=As%20defined%20in%20the%20Inflation,technologies%20located%20in%20energy%20communities.'>EnergyCommunities</a>
+            <br/>
+            <Subsubheader>Tribal Areas:</Subsubheader>
+            <a href="https://news.bloombergtax.com/tax-insights-and-commentary/tribal-clean-energy-programs-will-benefit-from-new-tax-credits#:~:text=Key%20tax%20credits%20tribes%20can,serve%20tribal%20housing%20and%20residences.">Bloomberg</a>
       </InnerHomeContainer>
     </HomeContainer>
   );
@@ -55,6 +57,15 @@ const Subheader = styled.h2`
   margin: auto;
   margin-bottom: 20px;
   color: black;
+`
+
+
+const Subsubheader = styled.h3`
+  font-size: 18px;
+  font-weight: bold;
+  margin: auto;
+  margin-top: 5px;
+  color: black !important;
 `
 
 export default Resources;

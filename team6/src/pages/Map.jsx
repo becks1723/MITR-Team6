@@ -5,7 +5,8 @@ import {
   FormControl,
   FormLabel,
   Button,
-  Input
+  Input,
+  Tooltip
 } from '@chakra-ui/react'
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmVraTE3MjMiLCJhIjoiY2xubmN0aHR0MDN3dDJscDFjb3dwcnJ2biJ9.7yw3B1pSgWFIC425BveDOQ';
 
@@ -117,29 +118,34 @@ export default function Map() {
           <LongLat>
             Longitude: {lng}  <br/> Latitude: {lat} <br/> Zoom: {zoom}
           </LongLat>
+          <IncentiveText>Hover for more information</IncentiveText>
+
           <Incentive1>
-            <IncentiveHeader>
-              Incentive 1
-            </IncentiveHeader>
-            <IncentiveText>
-              Blah blah blah
-            </IncentiveText>
+            <Tooltip
+              label="Solar tax credits are primarily governed by the federal government and are designed to incentivize the adoption of solar energy systems. The two main federal solar tax credits are the Investment Tax Credit (ITC) and the Residential Renewable Energy Tax Credit. These credits offer over 30% back on the cost of a solar project."
+            >             
+              <IncentiveHeader>
+              State Tax Credit
+              </IncentiveHeader>  
+            </Tooltip>
           </Incentive1>
+
           <Incentive2>
-            <IncentiveHeader>
-              Incentive 2
-            </IncentiveHeader>
-            <IncentiveText>
-              Beep beep boop
-            </IncentiveText>
+            <Tooltip
+              label="This incentive provides a bonus of up to 10% for production tax credits and 10 percentage points for investment tax credits for projects in energy communities."
+            >
+              <IncentiveHeader>
+                Energy Communities
+              </IncentiveHeader>
+            </Tooltip>
           </Incentive2>
+
           <Incentive3>
-            <IncentiveHeader>
-              Incentive 3
-            </IncentiveHeader>
-            <IncentiveText>
-              Hello, hi, hello.
-            </IncentiveText>
+            <Tooltip label="Tribes can access tax credits of 30–70% for renewable energy projects. There is also a bonus tax credit for projects on American Indian lands or that serve tribal housing and residences.">
+              <IncentiveHeader>
+                Tribal Areas
+              </IncentiveHeader>
+            </Tooltip>
           </Incentive3>
         </Sidebar>
         <MapCanvas ref={mapContainer} />
@@ -216,7 +222,7 @@ const IncentiveHeader = styled.h1`
 `
 
 const IncentiveText = styled.p`
-  
+  margin-top: 10px;
 `
 
 const Row = styled.div`
