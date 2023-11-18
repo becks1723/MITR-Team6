@@ -12,22 +12,37 @@ app.use(express.json());
 
 //MongoDB connection
 const mongoose = require('mongoose');
-const fs = require('fs');
-const ZipModel = require('./Models/zipModel');
+// const fs = require('fs');
+// const ZipModel = require('./Models/zipModel');
 const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/?retryWrites=true&w=majority'; 
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-// const schema = new mongoose.Schema({index: Number/*,*/ /*put incentive data here*/});
-// const Adder = mongoose.model('Adders', schema);
-// const EC = mongoose.model('Energy-Communities', schema);
-// const TC = mongoose.model('Tribal-Communities', schema);
+const schema = new mongoose.Schema({index: Number, name: String, state: {type: String, required: true}, zipcodes: Array, description: String /*put incentive data here*/});
+const Adder = mongoose.model('Adders', schema);
+const EC = mongoose.model('Energy-Communities', schema);
+const TC = mongoose.model('Tribal-Communities', schema);
 // const timeSchema = new mongoose.Schema({/*_id: {type: ObjectID, required: true}, index: {type: Int32, required: true},*/ milliseconds: {type: Number/*INT32*/, required: true}, year: {type: Number/*INT32*/, required: true}, month: {type: Number/*INT32*/, required: true}, day: {type: Number/*INT32*/, required: true}});
 // const LastUpdated = /*mongoose*/connection.model('Last-Updated', timeSchema);
+const adderData = require('./Data/test.json');
+// console.log(testData);
+
 
 app.post('/import-json', async (req, res) => {
   try {
-    const data = await fs.readFile('./Data/test.json', 'utf8');
-    const jsonData = JSON.parse(data);
-    await ZipModel.insertMany(jsonData);
+    //compile zipcodes by state
+    zipcodesMap = new Map();
+    //here
+
+    //read in data for Adders
+    for(var i = 0; i < adderData.data.length; i++) {
+      if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California") {
+        // const newAdder = await new Adder({index: i, name: adderData.data[i].Name, state: adderData.data[i].State, zipcodes: zipcodesMap[adderData.data[i].State], description: adderData.data[i].Summary});
+        // await newAdder.save();
+        console.log(i, adderData.data[i].Name, adderData.data[i].State, adderData.data[i].Summary);
+      }
+    }
+    // const data = await fs.readFile('./Data/test.json', 'utf8');
+    // const jsonData = JSON.parse(data);
+    // await ZipModel.insertMany(jsonData);
     res.send("Data imported successfully");
   } catch (error) {
     console.error("Error during file reading or data import", error);

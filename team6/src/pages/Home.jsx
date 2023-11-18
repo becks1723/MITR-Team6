@@ -4,11 +4,18 @@ import bgPhoto from "../assets/san-jose.png";
 import { ReactComponent as Logo } from "../crown.svg";
 
 function Home() {
+  const postTest = () => {
+    fetch('http://localhost:3001/import-json', {
+      "method": "POST",
+      // "Access-Control-Allow-Origin": "*"
+    });
+  }
 
   return (
     <HomeContainer >
       <InnerHomeContainer>
         <Logo/>
+        <button onClick={postTest} >post</button>
         <Header>Welcome to ZAMP</Header>
         <Subheader>Mission Statement...</Subheader>
         <p>blah blah blah</p>
