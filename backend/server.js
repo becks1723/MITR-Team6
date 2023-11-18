@@ -40,6 +40,12 @@ app.post('/import-json', async (req, res) => {
         console.log(i, adderData.data[i].Name, adderData.data[i].State, adderData.data[i].Summary);
       }
     }
+
+    //energy communities
+    zipToCountyMap = new Map();
+    //here
+
+
     // const data = await fs.readFile('./Data/test.json', 'utf8');
     // const jsonData = JSON.parse(data);
     // await ZipModel.insertMany(jsonData);
