@@ -35,12 +35,16 @@ app.post('/import-json', async (req, res) => {
   }
 });
 
+var path = require('path');
+// const root = path.join(__dirname, 'team6')
 //serve front end
 app.get('*', (req, res) => {
     //maybe refresh database here
-    refreshDB();
+    // refreshDB();
     //make sure to build the front end in order to serve
-    res.sendFile(__dirname + '/team6/build/index.html');
+    // res.sendFile(__dirname + '/../team6/build/index.html');
+    console.log(__dirname);
+    res.sendFile(path.resolve('../team6/build/index.html'));
 });
 
 
@@ -72,7 +76,7 @@ app.get('/:zipcode/:types?', async function(req, res) {
 
 });
 
-app.use(express.static(__dirname + '/team6/build'));
+app.use(express.static(__dirname + '/../team6/build'));
 
 server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`)
