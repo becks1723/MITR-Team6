@@ -47,13 +47,26 @@ export default function Map() {
   }, [mini]);
 
   async function changeIncentives() {
-    console.log("changing incentives");
     let allIncentives = await fetch('put URL here');
     if(!allIncentives.ok) {
       throw new Error('You failed');
     }
-    let data = await allIncentives.json();
+    
+    setShow1(true);
+    setShow2(true);
+    setShow3(true);
 
+    let test = {
+      "index": 0,
+      "name": "B",
+      "state": "",
+      "zipcodes": [],
+      "description": ""
+    }
+
+    if (test.name == 'A') {
+      setShow1(false);
+    }
   }
 
   function addLayer() {
@@ -134,7 +147,7 @@ export default function Map() {
           </LongLat>
           <IncentiveText>Hover for more information</IncentiveText>
 
-          <Incentive1 id='I1'>
+          {inc1 && <Incentive1 id='I1'>
             <Tooltip
               label="Solar tax credits are primarily governed by the federal government and are designed to incentivize the adoption of solar energy systems. The two main federal solar tax credits are the Investment Tax Credit (ITC) and the Residential Renewable Energy Tax Credit. These credits offer over 30% back on the cost of a solar project."
             >             
@@ -142,9 +155,9 @@ export default function Map() {
               State Tax Credit
               </IncentiveHeader>  
             </Tooltip>
-          </Incentive1>
+          </Incentive1>}
 
-          <Incentive2 id='I2'>
+          {inc2 && <Incentive2 id='I2'>
             <Tooltip
               label="This incentive provides a bonus of up to 10% for production tax credits and 10 percentage points for investment tax credits for projects in energy communities."
             >
@@ -152,15 +165,15 @@ export default function Map() {
                 Energy Communities
               </IncentiveHeader>
             </Tooltip>
-          </Incentive2>
+          </Incentive2>}
 
-          <Incentive3 id='I3'>
+          {inc3 && <Incentive3 id='I3'>
             <Tooltip label="Tribes can access tax credits of 30–70% for renewable energy projects. There is also a bonus tax credit for projects on American Indian lands or that serve tribal housing and residences.">
               <IncentiveHeader>
                 Tribal Areas
               </IncentiveHeader>
             </Tooltip>
-          </Incentive3>
+          </Incentive3>}
         </Sidebar>
         <MapCanvas ref={mapContainer} />
       </Row>

@@ -105,17 +105,6 @@ app.get("/zipcode/:number", async function (req, res) {
   }
 });
 
-app.get("/db", async function (req, res) {
-  await client.connect();
-  const database = client.db("WebSci");
-  const collect = database.collection("Lab6");
-  var obj = await collect.find().toArray();
-  if(!obj) {
-    res.send("Objects Not Found!").status(404);
-  } else {
-    res.send(obj).status(200);
-  }
-});
 
 //listen on port 3000
 app.listen(port, () => console.info('Starting server...'));
