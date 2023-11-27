@@ -103,3 +103,17 @@ app.get('/:zipcode/:types?', async function(req, res) {
 server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`)
 });
+
+//Becky's zipcode API call
+app.get("/zipcode/:number", async function (req, res) {
+  var zip = req.params.number;
+  await client.connect();
+  const database = client.db("zipcodes");
+  const collect = database.collection("zip");
+  var obj = await collect.findOne({ "features.properties.ZCTA5CE20" : zip});
+  if(!obj) {
+    res.send("Object Not Found!").status(404);
+  } else {
+    res.send(obj).status(200);
+  }
+});
