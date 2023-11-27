@@ -2,6 +2,7 @@ const express = require('express');
 const PORT = process.env.PORT || 3001
 const app = express()
 var server = require('http').Server(app);
+const xlsx = require('xlsx');
 
 //might need to change later
 //currently allows anyone to call endpoints
@@ -42,7 +43,49 @@ app.post('/import-json', async (req, res) => {
     }
 
     //energy communities
+    // zipToCountyMap = new Map();
+    const file = xlsx.readFile('./Data/zip_code_database.xls');
+    let data = []
+    const sheets = file.SheetNames 
+    for(let i = 0; i < sheets.length; i++) { 
+      const temp = xlsx.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]) 
+      temp.forEach((res) => {
+        // console.log(res)
+      }) 
+    }
+    countyClosureMap = new Set();
+    let directory_name = './Data/';
+    let coal_closure_excelFileName = 'Coal_Closure_Energy_Communities_2023v2.csv';
+    const coal_closure_filePath = path.resolve(directory_name, coal_closure_excelFileName);
+
     zipToCountyMap = new Map();
+    let zipcode_closure_excelFileName = 'zip_code_database.xls';
+    const zipcode_closure_filePath = path.resolve(directory_name, zipcode_closure_excelFileName);
+
+    if (fs.existsSync(coal_closure_filePath) && fs.existsSync(zipcode_closure_filePath)) {
+      var coal_closure_workbook = xlsx.readFile(coal_closure_filePath);
+      var coal_closure_worksheet = coal_closure_workbook.Sheets[coal_closure_workbook.SheetNames[0]];
+      var coal_closure_filedata = xlsx.utils.sheet_to_json(coal_closure_worksheet);
+      coal_closure_filedata.forEach((row, index) => {
+        countyClosureMap.add(row["County_Name"]);
+      });
+      //console.log(countyClosureMap);
+      var zipcode_closure_workbook = xlsx.readFile(zipcode_closure_filePath);
+      var zipcode_closure_worksheet = zipcode_closure_workbook.Sheets[zipcode_closure_workbook.SheetNames[0]];
+      var zipcode_closure_filedata = xlsx.utils.sheet_to_json(zipcode_closure_worksheet);
+      zipcode_closure_filedata.forEach((row, index) => {
+        if(countyClosureMap.has(row["county"])){
+          if(zipToCountyMap.has(row["county"]) == false){
+            zipToCountyMap.set(row["county"], [[],row["state"]]);
+          }
+          zipToCountyMap.get(row["county"])[0].push(row["zip"]);
+        }
+      })
+      console.log(zipToCountyMap);
+    } else {
+      console.log(`File(s) not found`);
+    }
+
     //here
     var indexCounter = 0;
     for(var [county, arr] of zipToCountyMap) {
