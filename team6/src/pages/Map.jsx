@@ -200,6 +200,8 @@ const Incentive1 = styled.section`
   border-radius: 12px;
   margin: 10px;
   background-color: #EF476F70;
+  padding-top: 30px;
+  padding-bottom:30px;
 `
 
 const Incentive2 = styled.section`
@@ -207,6 +209,8 @@ const Incentive2 = styled.section`
   border-radius: 12px;
   margin: 10px;
   background-color: #26547C70;
+  padding-top: 30px;
+  padding-bottom:30px;
 `
 
 const Incentive3 = styled.section`
@@ -214,6 +218,9 @@ const Incentive3 = styled.section`
   border-radius: 12px;
   margin: 10px;
   background-color: #FFD16670;
+  padding-top: 30px;
+  padding-bottom:30px;
+
 `
 
 const IncentiveHeader = styled.h1`
