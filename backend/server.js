@@ -70,6 +70,15 @@ app.get('*', (req, res) => {
 });
 
 
+// {
+//   "index": 0,
+//   "name": "",
+//   "state": "",
+//   "zipcodes": [],
+//   "description": ""
+// }
+
+
 //refresh database
 async function refreshDB() {
     // const today = new Date();
@@ -96,6 +105,20 @@ app.get('/:zipcode/:types?', async function(req, res) {
     var zipcode = req.params.zipcode;
     var types = req.params.types;
 
+    var incentives = [];
+    for(var i = 0; i < types.length; i++) {
+      const arr = [];
+      if(types[i] == 'A') {
+        arr = await Adder.find({zipcodes: zipcode}).exec();
+      } else if(types[i] == 'C') {
+        arr = await EC.find({zipcodes: zipcode}).exec();
+      } else if(types[i] == 'T') {
+        arr = await TC.find({zipcodes: zipcode}).exec();
+      }
+      incentives.concat(arr);
+    }
+
+    res.send(incentives);
 });
 
 // app.use(express.static(__dirname + '/../team6/build'));
