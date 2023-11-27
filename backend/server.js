@@ -47,13 +47,13 @@ app.post('/import-json', async (req, res) => {
     //energy communities
     // zipToCountyMap = new Map();
     const file = xlsx.readFile('./Data/zip_code_database.xls');
-    let data = []
-    const sheets = file.SheetNames 
+    let data = [];
+    const sheets = file.SheetNames;
     for(let i = 0; i < sheets.length; i++) { 
-      const temp = xlsx.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]) 
-      temp.forEach((res) => {
-        // console.log(res)
-      }) 
+      const temp = xlsx.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
+      // temp.forEach((res) => {
+      //   // console.log(res)
+      // });
     }
     countyClosureMap = new Set();
     let directory_name = './Data/';
@@ -76,8 +76,8 @@ app.post('/import-json', async (req, res) => {
       var zipcode_closure_worksheet = zipcode_closure_workbook.Sheets[zipcode_closure_workbook.SheetNames[0]];
       var zipcode_closure_filedata = xlsx.utils.sheet_to_json(zipcode_closure_worksheet);
       zipcode_closure_filedata.forEach((row, index) => {
-        if(countyClosureMap.has(row["county"])){
-          if(zipToCountyMap.has(row["county"]) == false){
+        if(countyClosureMap.has(row["county"])) {
+          if(zipToCountyMap.has(row["county"]) == false) {
             zipToCountyMap.set(row["county"], [[],row["state"]]);
           }
           zipToCountyMap.get(row["county"])[0].push(row["zip"]);
