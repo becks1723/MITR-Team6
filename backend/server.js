@@ -1,8 +1,10 @@
 const express = require('express');
-const PORT = process.env.PORT || 3001
-const app = express()
+const PORT = process.env.PORT || 3001;
+const app = express();
 var server = require('http').Server(app);
+const fs = require('fs');
 const xlsx = require('xlsx');
+var path = require('path');
 
 //might need to change later
 //currently allows anyone to call endpoints
@@ -105,7 +107,6 @@ app.post('/import-json', async (req, res) => {
   }
 });
 
-var path = require('path');
 const root = path.join(__dirname, '..', 'team6', 'build');
 app.use(express.static(root));
 //serve front end
