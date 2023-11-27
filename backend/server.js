@@ -28,6 +28,14 @@ const TC = mongoose.model('Tribal-Communities', schema);
 const adderData = require('./Data/test.json');
 // console.log(testData);
 
+function removeTags(str) {
+  if ((str===null) || (str===''))
+    return false;
+  else {
+    str = str.toString();
+  }
+  return str.replace( /(<([^>]+)>)/ig, '');
+}
 
 app.post('/import-json', async (req, res) => {
   try {
@@ -38,9 +46,9 @@ app.post('/import-json', async (req, res) => {
     //read in data for Adders
     for(var i = 0; i < adderData.data.length; i++) {
       if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California" || adderData.data[i].State == "Florida" || adderData.data[i].State == "Illinois") {
-        // const newAdder = await new Adder({index: i, name: adderData.data[i].Name, state: adderData.data[i].State, zipcodes: zipcodesMap[adderData.data[i].State], description: adderData.data[i].Summary});
+        // const newAdder = await new Adder({index: i, name: removeTags(adderData.data[i].Name), state: removeTags(adderData.data[i].State), zipcodes: removeTags(zipcodesMap[adderData.data[i].State]), description: removeTags(adderData.data[i].Summary}));
         // await newAdder.save();
-        console.log(i, adderData.data[i].Name, adderData.data[i].State, adderData.data[i].Summary);
+        console.log(i, removeTags(adderData.data[i].Name), removeTags(adderData.data[i].State), removeTags(adderData.data[i].Summary));
       }
     }
 
@@ -83,7 +91,7 @@ app.post('/import-json', async (req, res) => {
           zipToCountyMap.get(row["county"])[0].push(row["zip"]);
         }
       })
-      console.log(zipToCountyMap);
+      // console.log(zipToCountyMap);
     } else {
       console.log(`File(s) not found`);
     }
@@ -101,7 +109,7 @@ app.post('/import-json', async (req, res) => {
       if(arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
         const newEC = await new EC({index: indexCounter, name: "Energy Community Tax Credit Bonus", state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Applies a bonus of up to 10% (for production tax credits) or 10 percentage points (for investment tax credits) for projects, facilities, and technologies located in energy communities."});
         // await newEC.save();
-        console.log(newEC);
+        // console.log(newEC);
         indexCounter++;
       }
     }
