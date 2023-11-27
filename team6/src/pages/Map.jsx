@@ -19,6 +19,9 @@ export default function Map() {
   const [address, setAddress] = React.useState('');
   const [mini, setMini] = React.useState({"_id" : 0, "features": [ { "type": "Feature", "properties": { "fid": 1, "ZCTA5CE20": "0"}}]});
   const [count, setCount] = useState(0);
+  const [inc1, setShow1] = useState(true);
+  const [inc2, setShow2] = useState(true);
+  const [inc3, setShow3] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,8 +42,19 @@ export default function Map() {
     if(map.current) {
     console.log(mini); // This will log the updated value of mini when it changes
     addLayer(); // Perform other actions after mini state update
+    changeIncentives();
     }
   }, [mini]);
+
+  async function changeIncentives() {
+    console.log("changing incentives");
+    let allIncentives = await fetch('put URL here');
+    if(!allIncentives.ok) {
+      throw new Error('You failed');
+    }
+    let data = await allIncentives.json();
+
+  }
 
   function addLayer() {
     if (!map.current || !map.current.isStyleLoaded()) {
@@ -65,14 +79,14 @@ export default function Map() {
         type: "fill",
         source: sourceStr,
         paint: {
-          "fill-color": "#ED00FE",
-          "fill-opacity": 0.8
+          "fill-color": "#808080",
+          "fill-opacity": 0.6
         }
       },
     );
     map.current.flyTo({
       center: [mini.features[0].properties.INTPTLON20, mini.features[0].properties.INTPTLAT20],
-      zoom: 9
+      zoom: 12
     });
     console.log(mini);
   }
@@ -120,7 +134,7 @@ export default function Map() {
           </LongLat>
           <IncentiveText>Hover for more information</IncentiveText>
 
-          <Incentive1>
+          <Incentive1 id='I1'>
             <Tooltip
               label="Solar tax credits are primarily governed by the federal government and are designed to incentivize the adoption of solar energy systems. The two main federal solar tax credits are the Investment Tax Credit (ITC) and the Residential Renewable Energy Tax Credit. These credits offer over 30% back on the cost of a solar project."
             >             
@@ -130,7 +144,7 @@ export default function Map() {
             </Tooltip>
           </Incentive1>
 
-          <Incentive2>
+          <Incentive2 id='I2'>
             <Tooltip
               label="This incentive provides a bonus of up to 10% for production tax credits and 10 percentage points for investment tax credits for projects in energy communities."
             >
@@ -140,7 +154,7 @@ export default function Map() {
             </Tooltip>
           </Incentive2>
 
-          <Incentive3>
+          <Incentive3 id='I3'>
             <Tooltip label="Tribes can access tax credits of 30–70% for renewable energy projects. There is also a bonus tax credit for projects on American Indian lands or that serve tribal housing and residences.">
               <IncentiveHeader>
                 Tribal Areas
