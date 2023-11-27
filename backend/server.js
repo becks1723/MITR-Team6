@@ -89,12 +89,21 @@ app.post('/import-json', async (req, res) => {
     }
 
     //here
+    var initialsToStates = new Map();
+    initialsToStates.set("CA", "California");
+    initialsToStates.set("CO", "Colorado");
+    initialsToStates.set("NY", "New York");
+    initialsToStates.set("FL", "Florida");
+    initialsToStates.set("IL", "Illinois");
+
     var indexCounter = 0;
     for(var [county, arr] of zipToCountyMap) {
-      const newEC = await new EC({index: indexCounter, name: "Energy Community Tax Credit Bonus", state: arr[1], zipcodes: arr[0], description: "Applies a bonus of up to 10% (for production tax credits) or 10 percentage points (for investment tax credits) for projects, facilities, and technologies located in energy communities."});
-      // await newEC.save();
-      console.log(newEC);
-      indexCounter++;
+      if(arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
+        const newEC = await new EC({index: indexCounter, name: "Energy Community Tax Credit Bonus", state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Applies a bonus of up to 10% (for production tax credits) or 10 percentage points (for investment tax credits) for projects, facilities, and technologies located in energy communities."});
+        // await newEC.save();
+        console.log(newEC);
+        indexCounter++;
+      }
     }
 
     // const data = await fs.readFile('./Data/test.json', 'utf8');
