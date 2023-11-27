@@ -34,7 +34,7 @@ app.post('/import-json', async (req, res) => {
 
     //read in data for Adders
     for(var i = 0; i < adderData.data.length; i++) {
-      if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California") {
+      if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California" || adderData.data[i].State == "Florida" || adderData.data[i].State == "Illinois") {
         // const newAdder = await new Adder({index: i, name: adderData.data[i].Name, state: adderData.data[i].State, zipcodes: zipcodesMap[adderData.data[i].State], description: adderData.data[i].Summary});
         // await newAdder.save();
         console.log(i, adderData.data[i].Name, adderData.data[i].State, adderData.data[i].Summary);
@@ -93,11 +93,11 @@ async function refreshDB() {
 //test
 //all incentives endpoint
 //types is an array, with possible values of 'A', 'C', 'T'
-app.get('/all/:types?', async function(req, res) {
-    var types = req.params.type;
+// app.get('/all/:types?', async function(req, res) {
+//     var types = req.params.type;
 
 
-});
+// });
 
 //incentives by zip code endpoint
 //types is an array, with possible values of 'A', 'C', 'T'
@@ -128,6 +128,8 @@ server.listen(PORT, () => {
 });
 
 //Becky's zipcode API call
+const {MongoClient} = require('mongodb');
+const client = new MongoClient(mongoUri, {useNewUrlParser: true, useUnifiedTopology: true});
 app.get("/zipcode/:number", async function (req, res) {
   var zip = req.params.number;
   await client.connect();
