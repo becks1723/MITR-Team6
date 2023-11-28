@@ -128,9 +128,11 @@ app.post('/import-json', async (req, res) => {
     //read in data from csv into tribalZipCodes here
 
     for(var i = 0; i < tribalZipCodes; i++) {
-      const newTC = await new TC({index: i, name: tribalZipCodes[i].tribe, state: tribalZipCodes[i].state, zipcodes: tribalZipCodes[i].zipcodes, description: "Tribal Community"});
-      // await newTC.save();
-      console.log(newTC);
+      if(tribalZipCodes[i].state == "CA" || tribalZipCodes[i].state == "CO" || tribalZipCodes[i].state == "NY" || tribalZipCodes[i].state == "FL" || tribalZipCodes[i].state == "IL") {
+        const newTC = await new TC({index: i, name: tribalZipCodes[i].tribe, state: initialsToStates.get(tribalZipCodes[i].state), zipcodes: tribalZipCodes[i].zipcodes, description: "Tribal Community"});
+        // await newTC.save();
+        console.log(newTC);
+      }
     }
 
     // const data = await fs.readFile('./Data/test.json', 'utf8');
