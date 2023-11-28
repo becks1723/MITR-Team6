@@ -11,11 +11,23 @@ function Home() {
     });
   }
 
+  const getTest = () => {
+    var queryString = 'http://localhost:3001/95932/' + ['T', 'C']; //+ JSON.stringify(['T']);
+    fetch(queryString, {
+      "method": "GET"
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      });
+  }
+
   return (
     <HomeContainer >
       <InnerHomeContainer>
         <Logo/>
-        <button onClick={postTest} >post</button>
+        <button onClick={postTest}>post</button>
+        <button onClick={getTest}>get Tribal</button>
         <Header>Welcome to ZAMP</Header>
         <Subheader>Mission Statement...</Subheader>
         <p>blah blah blah</p>

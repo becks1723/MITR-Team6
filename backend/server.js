@@ -17,16 +17,19 @@ app.use(express.json());
 const mongoose = require('mongoose');
 // const fs = require('fs');
 // const ZipModel = require('./Models/zipModel');
-const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/?retryWrites=true&w=majority'; 
+const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/Incentives-Data?retryWrites=true&w=majority'; 
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-const schema = new mongoose.Schema({index: Number, name: String, state: {type: String, required: true}, zipcodes: Array, description: String /*put incentive data here*/});
-const Adder = mongoose.model('Adders', schema);
-const EC = mongoose.model('Energy-Communities', schema);
-const TC = mongoose.model('Tribal-Communities', schema);
+const schema = new mongoose.Schema({index: {type: Number, unique: true}, name: String, state: {type: String, required: true}, zipcodes: [Number], description: String /*put incentive data here*/});
+const Adder = mongoose.model('adders', schema);
+const EC = mongoose.model('energy-communities', schema);
+const TC = mongoose.model('tribal-communities', schema);
 // const timeSchema = new mongoose.Schema({/*_id: {type: ObjectID, required: true}, index: {type: Int32, required: true},*/ milliseconds: {type: Number/*INT32*/, required: true}, year: {type: Number/*INT32*/, required: true}, month: {type: Number/*INT32*/, required: true}, day: {type: Number/*INT32*/, required: true}});
 // const LastUpdated = /*mongoose*/connection.model('Last-Updated', timeSchema);
 const adderData = require('./Data/test.json');
 // console.log(testData);
+
+const root = path.join(__dirname, '..', 'team6', 'build');
+app.use(express.static(root));
 
 function removeTags(str) {
   if ((str===null) || (str===''))
@@ -124,18 +127,6 @@ app.post('/import-json', async (req, res) => {
   }
 });
 
-const root = path.join(__dirname, '..', 'team6', 'build');
-app.use(express.static(root));
-//serve front end
-app.get('*', (req, res) => {
-    //maybe refresh database here
-    // refreshDB();
-    //make sure to build the front end in order to serve
-    // res.sendFile(__dirname + '/../team6/build/index.html');
-    // console.log(__dirname);
-    res.sendFile(path.resolve('../team6/build/index.html'));
-});
-
 
 // {
 //   "index": 0,
@@ -166,26 +157,69 @@ async function refreshDB() {
 
 // });
 
+// app.get('/byZipcode/:zipcode', async function(req, res) {
+//   var zipcode = req.params.zipcode;
+//   console.log(zipcode);
+//   res.send("kdkdk");
+// });
+
+// app.get('/byZipcode', async function(req, res) {
+//   console.log("kdkdkdkidoiei");
+//   res.send("kdkdk");
+// });
+
 //incentives by zip code endpoint
-//types is an array, with possible values of 'A', 'C', 'T'
+//types is an optional array, with possible element values of 'A', 'C', 'T'
+//if no types array is given, will default to all types
 app.get('/:zipcode/:types?', async function(req, res) {
     var zipcode = req.params.zipcode;
     var types = req.params.types;
+    //JSON.parse(req.params.types);
 
     var incentives = [];
-    for(var i = 0; i < types.length; i++) {
-      const arr = [];
-      if(types[i] == 'A') {
-        arr = await Adder.find({zipcodes: zipcode}).exec();
-      } else if(types[i] == 'C') {
-        arr = await EC.find({zipcodes: zipcode}).exec();
-      } else if(types[i] == 'T') {
-        arr = await TC.find({zipcodes: zipcode}).exec();
-      }
-      incentives.concat(arr);
+    if(!types) {
+      types = ['A', 'C', 'T'];
     }
+    console.log(types);
+    // console.log(await TC.find());
+    for(var i = 0; i < types.length; i++) {
+      var arr = [];
+      if(types[i] == 'A') {
+        arr = await Adder.find({zipcodes: zipcode});
+        console.log("A", arr);
+      } else if(types[i] == 'C') {
+        arr = await EC.find({zipcodes: zipcode});
+        console.log("C", arr);
+      } else if(types[i] == 'T') {
+        arr = await TC.find({zipcodes: zipcode});
+        console.log("T", arr);
+      }
+      if(arr.length > 0) {
+        // console.log("arr again", arr);
+        // incentives.concat(arr);
+        for(var j = 0; j < arr.length; j++) {
+          incentives.push(arr[j]);
+        }
+        // console.log("Incentives", incentives);
+      }
+    }
+    // console.log(incentives);
+
+    // const newTC = await new TC({index: 3, name: "Resighini Rancheria, California", state: "California", zipcodes: [95548], description: "Tribal Community"})
+    // await newTC.save();
 
     res.send(incentives);
+});
+
+
+//serve front end
+app.get('*', (req, res) => {
+  //maybe refresh database here
+  // refreshDB();
+  //make sure to build the front end in order to serve
+  // res.sendFile(__dirname + '/../team6/build/index.html');
+  // console.log(__dirname);
+  res.sendFile(path.resolve('../team6/build/index.html'));
 });
 
 // app.use(express.static(__dirname + '/../team6/build'));
