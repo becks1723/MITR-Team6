@@ -117,6 +117,22 @@ app.post('/import-json', async (req, res) => {
       }
     }
 
+    /*each element of tribalZipCodes should be an object modeled as such:
+    {
+      "tribe": "insert tribe name here",
+      "state": "insert state here",
+      "zipcodes": [insert zipcodes here]
+    }
+    */
+    var tribalZipCodes = [];
+    //read in data from csv into tribalZipCodes here
+
+    for(var i = 0; i < tribalZipCodes; i++) {
+      const newTC = await new TC({index: i, name: tribalZipCodes[i].tribe, state: tribalZipCodes[i].state, zipcodes: tribalZipCodes[i].zipcodes, description: "Tribal Community"});
+      // await newTC.save();
+      console.log(newTC);
+    }
+
     // const data = await fs.readFile('./Data/test.json', 'utf8');
     // const jsonData = JSON.parse(data);
     // await ZipModel.insertMany(jsonData);
