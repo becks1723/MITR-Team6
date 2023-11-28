@@ -75,7 +75,13 @@ app.post('/import-json', async (req, res) => {
     let zipcode_closure_excelFileName = 'zip_code_database.xls';
     const zipcode_closure_filePath = path.resolve(directory_name, zipcode_closure_excelFileName);
 
-    if (fs.existsSync(coal_closure_filePath) && fs.existsSync(zipcode_closure_filePath)) {
+    stateToZipMap = new Map();
+    let stateToZipMap_excelFileName = 'zip_code_database.xls';
+    const stateToZipMap_filePath = path.resolve(directory_name, stateToZipMap_excelFileName);
+
+    filesExist = fs.existsSync(coal_closure_filePath) && fs.existsSync(zipcode_closure_filePath) && fs.existsSync(stateToZipMap_filePath);
+
+    if (filesExist) {
       var coal_closure_workbook = xlsx.readFile(coal_closure_filePath);
       var coal_closure_worksheet = coal_closure_workbook.Sheets[coal_closure_workbook.SheetNames[0]];
       var coal_closure_filedata = xlsx.utils.sheet_to_json(coal_closure_worksheet);
@@ -92,9 +98,13 @@ app.post('/import-json', async (req, res) => {
             zipToCountyMap.set(row["county"], [[],row["state"]]);
           }
           zipToCountyMap.get(row["county"])[0].push(row["zip"]);
+          if(stateToZipMap.has(row["state"]) == false) {
+            stateToZipMap.set(row["state"], []);
+          }
+          stateToZipMap.get(row["state"]).push(row["zip"]);
         }
       })
-      // console.log(zipToCountyMap);
+      console.log(stateToZipMap);
     } else {
       console.log(`File(s) not found`);
     }
