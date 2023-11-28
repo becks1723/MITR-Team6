@@ -79,7 +79,11 @@ app.post('/import-json', async (req, res) => {
     let stateToZipMap_excelFileName = 'zip_code_database.xls';
     const stateToZipMap_filePath = path.resolve(directory_name, stateToZipMap_excelFileName);
 
-    filesExist = fs.existsSync(coal_closure_filePath) && fs.existsSync(zipcode_closure_filePath) && fs.existsSync(stateToZipMap_filePath);
+    tribalCommunitiesMap = new Map();
+    let tribalCommunitiesMap_excelFileName = 'ztribal-leaders-csv.csv';
+    const tribalCommunitiesMap_filePath = path.resolve(directory_name, tribalCommunitiesMap_excelFileName);
+
+    filesExist = fs.existsSync(coal_closure_filePath) && fs.existsSync(zipcode_closure_filePath) && fs.existsSync(stateToZipMap_filePath) && fs.existsSync(tribalCommunitiesMap_filePath);
 
     if (filesExist) {
       var coal_closure_workbook = xlsx.readFile(coal_closure_filePath);
@@ -93,18 +97,24 @@ app.post('/import-json', async (req, res) => {
       var zipcode_closure_worksheet = zipcode_closure_workbook.Sheets[zipcode_closure_workbook.SheetNames[0]];
       var zipcode_closure_filedata = xlsx.utils.sheet_to_json(zipcode_closure_worksheet);
       zipcode_closure_filedata.forEach((row, index) => {
-        if(countyClosureMap.has(row["county"])) {
-          if(zipToCountyMap.has(row["county"]) == false) {
-            zipToCountyMap.set(row["county"], [[],row["state"]]);
-          }
-          zipToCountyMap.get(row["county"])[0].push(row["zip"]);
-          if(stateToZipMap.has(row["state"]) == false) {
-            stateToZipMap.set(row["state"], []);
-          }
-          stateToZipMap.get(row["state"]).push(row["zip"]);
+        if(zipToCountyMap.has(row["county"]) == false) {
+          zipToCountyMap.set(row["county"], [[],row["state"]]);
         }
+        zipToCountyMap.get(row["county"])[0].push(row["zip"]);
+        if(stateToZipMap.has(row["state"]) == false) {
+          stateToZipMap.set(row["state"], []);
+        }
+        stateToZipMap.get(row["state"]).push(row["zip"]);
       })
-      console.log(stateToZipMap);
+      var tribalCommunities_workbook = xlsx.readFile(tribalCommunitiesMap_filePath);
+      var tribalCommunities_worksheet = tribalCommunities_workbook.Sheets[tribalCommunities_workbook.SheetNames[0]];
+      var tribalCommunities_filedata = xlsx.utils.sheet_to_json(tribalCommunities_worksheet);
+      tribalCommunities_filedata.forEach((row, index) => {
+          if(tribalCommunitiesMap.has(row["Tribe"]) == false) {
+            tribalCommunitiesMap.set(row["Tribe"], [[],row["state"]]);
+          }
+          tribalCommunitiesMap.get(row["Tribe"])[0].push(row["zip"]);
+      })
     } else {
       console.log(`File(s) not found`);
     }
