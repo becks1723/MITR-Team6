@@ -43,17 +43,8 @@ function removeTags(str) {
 app.post('/import-json', async (req, res) => {
   try {
     //compile zipcodes by state
-    zipcodesMap = new Map();
+    // zipcodesMap = new Map();
     //here
-
-    //read in data for Adders
-    for(var i = 0; i < adderData.data.length; i++) {
-      if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California" || adderData.data[i].State == "Florida" || adderData.data[i].State == "Illinois") {
-        // const newAdder = await new Adder({index: i, name: removeTags(adderData.data[i].Name), state: removeTags(adderData.data[i].State), zipcodes: removeTags(zipcodesMap[adderData.data[i].State]), description: removeTags(adderData.data[i].Summary}));
-        // await newAdder.save();
-        console.log(i, removeTags(adderData.data[i].Name), removeTags(adderData.data[i].State), removeTags(adderData.data[i].Summary));
-      }
-    }
 
     //energy communities
     // zipToCountyMap = new Map();
@@ -76,11 +67,12 @@ app.post('/import-json', async (req, res) => {
     const zipcode_closure_filePath = path.resolve(directory_name, zipcode_closure_excelFileName);
 
     stateToZipMap = new Map();
+    var cityToZipMap = new Map();
     let stateToZipMap_excelFileName = 'zip_code_database.xls';
     const stateToZipMap_filePath = path.resolve(directory_name, stateToZipMap_excelFileName);
 
     tribalCommunitiesMap = new Map();
-    let tribalCommunitiesMap_excelFileName = 'ztribal-leaders-csv.csv';
+    let tribalCommunitiesMap_excelFileName = 'tribal-leaders-csv.csv';
     const tribalCommunitiesMap_filePath = path.resolve(directory_name, tribalCommunitiesMap_excelFileName);
 
     filesExist = fs.existsSync(coal_closure_filePath) && fs.existsSync(zipcode_closure_filePath) && fs.existsSync(stateToZipMap_filePath) && fs.existsSync(tribalCommunitiesMap_filePath);
@@ -105,6 +97,11 @@ app.post('/import-json', async (req, res) => {
           stateToZipMap.set(row["state"], []);
         }
         stateToZipMap.get(row["state"]).push(row["zip"]);
+
+        if(cityToZipMap.has(row["primary_city"]) == false) {
+          cityToZipMap.set(row["primary_city"], []);
+        }
+        cityToZipMap.get(row["primary_city"]).push(row["zip"]);
       })
       var tribalCommunities_workbook = xlsx.readFile(tribalCommunitiesMap_filePath);
       var tribalCommunities_worksheet = tribalCommunities_workbook.Sheets[tribalCommunities_workbook.SheetNames[0]];
@@ -119,15 +116,55 @@ app.post('/import-json', async (req, res) => {
       console.log(`File(s) not found`);
     }
 
-    //here
+    console.log(tribalCommunitiesMap);
+    // console.log(stateToZipMap);
+    // console.log(cityToZipMap);
+
     var initialsToStates = new Map();
     initialsToStates.set("CA", "California");
+    initialsToStates.set("California", "CA");
     initialsToStates.set("CO", "Colorado");
+    initialsToStates.set("Colorado", "CO");
     initialsToStates.set("NY", "New York");
+    initialsToStates.set("New York", "NY");
     initialsToStates.set("FL", "Florida");
+    initialsToStates.set("Florida", "FL");
     initialsToStates.set("IL", "Illinois");
+    initialsToStates.set("Illinois", "IL");
 
+    //read in data for Adders
     var indexCounter = 0;
+    for(var i = 0; i < adderData.data.length; i++) {
+      if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California" || adderData.data[i].State == "Florida" || adderData.data[i].State == "Illinois") {
+        // console.log(i, " name: ", adderData.data[i].Name, " state: ", adderData.data[i].State, " summary: ", adderData.data[i].Summary);
+        if(removeTags(adderData.data[i].Summary).toString().toLowerCase().indexOf("solar") > -1 && adderData.data[i].CategoryName == 'Financial Incentive') {
+          var applicableZipcodes = stateToZipMap.get(initialsToStates.get(adderData.data[i].State));
+          if(adderData.data[i].Cities.length > 0 && adderData.data[i].ImplementingSectorName == "Local") {
+            console.log(adderData.data[i].Cities[0].name);
+            applicableZipcodes = cityToZipMap.get(adderData.data[i].Cities[0].name);
+          }
+          const newAdder = await new Adder({index: indexCounter, name: removeTags(adderData.data[i].Name), state: removeTags(adderData.data[i].State), zipcodes: applicableZipcodes, description: removeTags(adderData.data[i].Summary)});
+          // await newAdder.save();
+          // console.log(initialsToStates.get(adderData.data[i].State));
+          // console.log(stateToZipMap.get(initialsToStates.get(adderData.data[i].State)));
+          // if(adderData.data[i].Cities.length > 0 && adderData.data[i].ImplementingSectorName == "Local") 
+            console.log(newAdder);
+          
+          // if(adderData.data[i].ImplementingSectorName == "Local") {
+          //   console.log(adderData.data[i]);
+          // }
+          
+          indexCounter++;
+          // console.log(i, removeTags(adderData.data[i].Name), removeTags(adderData.data[i].State), removeTags(adderData.data[i].Summary));
+        }
+        
+      }
+    }
+
+    //here
+    
+
+    indexCounter = 0;
     for(var [county, arr] of zipToCountyMap) {
       if(arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
         const newEC = await new EC({index: indexCounter, name: "Energy Community Tax Credit Bonus", state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Applies a bonus of up to 10% (for production tax credits) or 10 percentage points (for investment tax credits) for projects, facilities, and technologies located in energy communities."});
@@ -151,7 +188,7 @@ app.post('/import-json', async (req, res) => {
       if(tribalZipCodes[i].state == "CA" || tribalZipCodes[i].state == "CO" || tribalZipCodes[i].state == "NY" || tribalZipCodes[i].state == "FL" || tribalZipCodes[i].state == "IL") {
         const newTC = await new TC({index: i, name: tribalZipCodes[i].tribe, state: initialsToStates.get(tribalZipCodes[i].state), zipcodes: tribalZipCodes[i].zipcodes, description: "Tribal Community"});
         // await newTC.save();
-        console.log(newTC);
+        // console.log(newTC);
       }
     }
 
@@ -193,17 +230,6 @@ async function refreshDB() {
 //     var types = req.params.type;
 
 
-// });
-
-// app.get('/byZipcode/:zipcode', async function(req, res) {
-//   var zipcode = req.params.zipcode;
-//   console.log(zipcode);
-//   res.send("kdkdk");
-// });
-
-// app.get('/byZipcode', async function(req, res) {
-//   console.log("kdkdkdkidoiei");
-//   res.send("kdkdk");
 // });
 
 //incentives by zip code endpoint
