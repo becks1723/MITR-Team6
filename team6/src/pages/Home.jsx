@@ -12,7 +12,7 @@ function Home() {
   }
 
   const getTest = () => {
-    var queryString = 'http://localhost:3001/95932/' + ['T', 'C']; //+ JSON.stringify(['T']);
+    var queryString = 'http://localhost:3001/incentives/95932/' + ['T', 'C']; //+ JSON.stringify(['T']);
     fetch(queryString, {
       "method": "GET"
     })
@@ -20,6 +20,14 @@ function Home() {
       .then(data => {
         console.log(data);
       });
+  }
+
+  const zipcodeTest = () => {
+    fetch('http://localhost:3001/zipcode/11355', {
+      "method": "GET"
+    })
+    .then(response => response.json())
+    .then(data => console.log(data));
   }
 
   return (
