@@ -1,5 +1,5 @@
 const express = require('express');
-const PORT = process.env.PORT || 3001;
+const PORT = 3001;
 const app = express();
 var server = require('http').Server(app);
 const fs = require('fs');
@@ -15,9 +15,9 @@ app.use(express.json());
 
 //MongoDB connection
 const mongoose = require('mongoose');
-const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/Incentives-Data?retryWrites=true&w=majority'; 
+const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/Incentives-Data?retryWrites=true&w=majority';
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-const schema = new mongoose.Schema({index: {type: Number, unique: true}, name: String, state: {type: String, required: true}, zipcodes: [Number], description: String /*put incentive data here*/});
+const schema = new mongoose.Schema({ index: { type: Number, unique: true }, name: String, state: { type: String, required: true }, zipcodes: [Number], description: String /*put incentive data here*/ });
 const Adder = mongoose.model('adders', schema);
 const EC = mongoose.model('energy-communities', schema);
 const TC = mongoose.model('tribal-communities', schema);
@@ -28,12 +28,12 @@ const root = path.join(__dirname, '..', 'team6', 'build');
 app.use(express.static(root));
 
 function removeTags(str) {
-  if ((str===null) || (str===''))
+  if ((str === null) || (str === ''))
     return false;
   else {
     str = str.toString();
   }
-  return str.replace( /(<([^>]+)>)/ig, '');
+  return str.replace(/(<([^>]+)>)/ig, '');
 }
 
 app.post('/import-json', async (req, res) => {
@@ -41,7 +41,7 @@ app.post('/import-json', async (req, res) => {
     const file = xlsx.readFile('./Data/zip_code_database.xls');
     let data = [];
     const sheets = file.SheetNames;
-    for(let i = 0; i < sheets.length; i++) { 
+    for (let i = 0; i < sheets.length; i++) {
       const temp = xlsx.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
     }
     countyClosureMap = new Set();
@@ -75,16 +75,16 @@ app.post('/import-json', async (req, res) => {
       var zipcode_closure_worksheet = zipcode_closure_workbook.Sheets[zipcode_closure_workbook.SheetNames[0]];
       var zipcode_closure_filedata = xlsx.utils.sheet_to_json(zipcode_closure_worksheet);
       zipcode_closure_filedata.forEach((row, index) => {
-        if(zipToCountyMap.has(row["county"]) == false) {
-          zipToCountyMap.set(row["county"], [[],row["state"]]);
+        if (zipToCountyMap.has(row["county"]) == false) {
+          zipToCountyMap.set(row["county"], [[], row["state"]]);
         }
         zipToCountyMap.get(row["county"])[0].push(row["zip"]);
-        if(stateToZipMap.has(row["state"]) == false) {
+        if (stateToZipMap.has(row["state"]) == false) {
           stateToZipMap.set(row["state"], []);
         }
         stateToZipMap.get(row["state"]).push(row["zip"]);
 
-        if(cityToZipMap.has(row["primary_city"]) == false) {
+        if (cityToZipMap.has(row["primary_city"]) == false) {
           cityToZipMap.set(row["primary_city"], []);
         }
         cityToZipMap.get(row["primary_city"]).push(row["zip"]);
@@ -93,10 +93,10 @@ app.post('/import-json', async (req, res) => {
       var tribalCommunities_worksheet = tribalCommunities_workbook.Sheets[tribalCommunities_workbook.SheetNames[0]];
       var tribalCommunities_filedata = xlsx.utils.sheet_to_json(tribalCommunities_worksheet);
       tribalCommunities_filedata.forEach((row, index) => {
-          if(tribalCommunitiesMap.has(row["Tribe"]) == false) {
-            tribalCommunitiesMap.set(row["Tribe"], [[],row["State"]]);
-          }
-          tribalCommunitiesMap.get(row["Tribe"])[0].push(row["ZIPCode"]);
+        if (tribalCommunitiesMap.has(row["Tribe"]) == false) {
+          tribalCommunitiesMap.set(row["Tribe"], [[], row["State"]]);
+        }
+        tribalCommunitiesMap.get(row["Tribe"])[0].push(row["ZIPCode"]);
       })
     } else {
       console.log(`File(s) not found`);
@@ -116,26 +116,26 @@ app.post('/import-json', async (req, res) => {
 
     //read in data for Adders
     var indexCounter = 0;
-    for(var i = 0; i < adderData.data.length; i++) {
-      if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California" || adderData.data[i].State == "Florida" || adderData.data[i].State == "Illinois") {
-        if(removeTags(adderData.data[i].Summary).toString().toLowerCase().indexOf("solar") > -1 && adderData.data[i].CategoryName == 'Financial Incentive') {
+    for (var i = 0; i < adderData.data.length; i++) {
+      if (adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California" || adderData.data[i].State == "Florida" || adderData.data[i].State == "Illinois") {
+        if (removeTags(adderData.data[i].Summary).toString().toLowerCase().indexOf("solar") > -1 && adderData.data[i].CategoryName == 'Financial Incentive') {
           var applicableZipcodes = stateToZipMap.get(initialsToStates.get(adderData.data[i].State));
-          if(adderData.data[i].Cities.length > 0 && adderData.data[i].ImplementingSectorName == "Local") {
+          if (adderData.data[i].Cities.length > 0 && adderData.data[i].ImplementingSectorName == "Local") {
             applicableZipcodes = cityToZipMap.get(adderData.data[i].Cities[0].name);
           }
-          const newAdder = await new Adder({index: indexCounter, name: removeTags(adderData.data[i].Name), state: removeTags(adderData.data[i].State), zipcodes: applicableZipcodes, description: removeTags(adderData.data[i].Summary)});
+          const newAdder = await new Adder({ index: indexCounter, name: removeTags(adderData.data[i].Name), state: removeTags(adderData.data[i].State), zipcodes: applicableZipcodes, description: removeTags(adderData.data[i].Summary) });
           // await newAdder.save();
           indexCounter++;
         }
-        
+
       }
     }
-    
+
     //input EC data
     indexCounter = 0;
-    for(var [county, arr] of zipToCountyMap) {
-      if(arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
-        const newEC = await new EC({index: indexCounter, name: "Energy Community Tax Credit Bonus", state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Applies a bonus of up to 10% (for production tax credits) or 10 percentage points (for investment tax credits) for projects, facilities, and technologies located in energy communities."});
+    for (var [county, arr] of zipToCountyMap) {
+      if (arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
+        const newEC = await new EC({ index: indexCounter, name: "Energy Community Tax Credit Bonus", state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Applies a bonus of up to 10% (for production tax credits) or 10 percentage points (for investment tax credits) for projects, facilities, and technologies located in energy communities." });
         // await newEC.save();
         console.log(newEC);
         indexCounter++;
@@ -144,9 +144,9 @@ app.post('/import-json', async (req, res) => {
 
     //input tribal data
     indexCounter = 0;
-    for(var [tribe, arr] of tribalCommunitiesMap) {
-      if(arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
-        const newTC = await new TC({index: indexCounter, name: tribe, state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Tribal Community"});
+    for (var [tribe, arr] of tribalCommunitiesMap) {
+      if (arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
+        const newTC = await new TC({ index: indexCounter, name: tribe, state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Tribal Community" });
         // await newTC.save();
         indexCounter++;
       }
@@ -163,48 +163,48 @@ app.post('/import-json', async (req, res) => {
 //incentives by zip code endpoint
 //types is an optional array, with possible element values of 'A', 'C', 'T'
 //if no types array is given, will default to all types
-app.get('/incentives/:zipcode/:types?', async function(req, res) {
-    var zipcode = req.params.zipcode;
-    var types = req.params.types;
+app.get('/incentives/:zipcode/:types?', async function (req, res) {
+  var zipcode = req.params.zipcode;
+  var types = req.params.types;
 
-    var incentives = [];
-    if(!types) {
-      types = ['A', 'C', 'T'];
+  var incentives = [];
+  if (!types) {
+    types = ['A', 'C', 'T'];
+  }
+  console.log(types);
+  for (var i = 0; i < types.length; i++) {
+    var arr = [];
+    if (types[i] == 'A') {
+      arr = await Adder.find({ zipcodes: zipcode });
+      console.log("A", arr);
+    } else if (types[i] == 'C') {
+      arr = await EC.find({ zipcodes: zipcode });
+      console.log("C", arr);
+    } else if (types[i] == 'T') {
+      arr = await TC.find({ zipcodes: zipcode });
+      console.log("T", arr);
     }
-    console.log(types);
-    for(var i = 0; i < types.length; i++) {
-      var arr = [];
-      if(types[i] == 'A') {
-        arr = await Adder.find({zipcodes: zipcode});
-        console.log("A", arr);
-      } else if(types[i] == 'C') {
-        arr = await EC.find({zipcodes: zipcode});
-        console.log("C", arr);
-      } else if(types[i] == 'T') {
-        arr = await TC.find({zipcodes: zipcode});
-        console.log("T", arr);
-      }
-      if(arr.length > 0) {
-        for(var j = 0; j < arr.length; j++) {
-          incentives.push(arr[j]);
-        }
+    if (arr.length > 0) {
+      for (var j = 0; j < arr.length; j++) {
+        incentives.push(arr[j]);
       }
     }
+  }
 
-    res.send(incentives);
+  res.send(incentives);
 });
 
 //zipcode API call for geospatial data
-const {MongoClient} = require('mongodb');
+const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/";
-const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 app.get("/zipcode/:number", async function (req, res) {
   var zip = req.params.number;
   await client.connect();
   const database = client.db("zipcodes");
   const collect = database.collection("zip");
-  var obj = await collect.findOne({ "features.properties.ZCTA5CE20" : zip});
-  if(!obj) {
+  var obj = await collect.findOne({ "features.properties.ZCTA5CE20": zip });
+  if (!obj) {
     res.send("Object Not Found!").status(404);
   } else {
     res.send(obj).status(200);

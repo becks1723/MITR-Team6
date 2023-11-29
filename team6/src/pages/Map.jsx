@@ -13,15 +13,23 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYmVraTE3MjMiLCJhIjoiY2xubmN0aHR0MDN3dDJscDFjb
 export default function Map() {
   const mapContainer = useRef(null);
   const map = useRef(null);
+  const mapStyle = ['mapbox://styles/mapbox/streets-v12', 'mapbox://styles/mapbox/light-v11', 'mapbox://styles/mapbox/dark-v11', 'mapbox://styles/mapbox/satellite-streets-v12', 'mapbox://styles/mapbox/navigation-day-v1', 'mapbox://styles/mapbox/navigation-night-v1']
+  const options = [{ label: 'Streets', value: 0 }, { label: 'Light', value: 1 }, { label: 'Dark', value: 2 }, { label: 'Satellite', value: 3 }, { label: 'Navigation Day', value: 4 }, { label: 'Navigation Night', value: 5 }];
+  const [selectedOption, setSelectedOption] = useState(0);
   const [lng, setLng] = useState(-121.9);
   const [lat, setLat] = useState(37.35);
   const [zoom, setZoom] = useState(12);
   const [address, setAddress] = React.useState('');
-  const [mini, setMini] = React.useState({"_id" : 0, "features": [ { "type": "Feature", "properties": { "fid": 1, "ZCTA5CE20": "0"}}]});
+  const [mini, setMini] = React.useState({ "_id": 0, "features": [{ "type": "Feature", "properties": { "fid": 1, "ZCTA5CE20": "0" } }] });
   const [count, setCount] = useState(0);
   const [inc1, setShow1] = useState(true);
   const [inc2, setShow2] = useState(true);
   const [inc3, setShow3] = useState(true);
+  const inc1Active = ['#EF476F70', '#EF476F'];
+  const inc2Active = ['#26547C70', '#26547C'];
+  const inc3Active = ['#FFD16670', '#FFD166'];
+  const notActive = []
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,10 +47,10 @@ export default function Map() {
   };
 
   React.useEffect(() => {
-    if(map.current) {
-    console.log(mini); // This will log the updated value of mini when it changes
-    addLayer(); // Perform other actions after mini state update
-    //changeIncentives();
+    if (map.current) {
+      console.log(mini); // This will log the updated value of mini when it changes
+      addLayer(); // Perform other actions after mini state update
+      //changeIncentives();
     }
   }, [mini]);
 
@@ -52,7 +60,7 @@ export default function Map() {
   //   if(!allIncentives.ok) {
   //     throw new Error('You failed');
   //   }
-    
+
   //   setShow1(true);
   //   setShow2(true);
   //   setShow3(true);
@@ -76,7 +84,7 @@ export default function Map() {
     }
 
     console.log("zipcode:", mini.features[0].properties.ZCTA5CE20);
-   
+
     var c = mini._id + "" + count;
     setCount(count + 1);
     var idStr = mini._id === 0 ? "0" : c;
@@ -104,12 +112,12 @@ export default function Map() {
     });
     console.log(mini);
   }
-  
+
   useEffect(() => {
-    if (map.current) return; 
+    if (map.current) return;
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: mapStyle[selectedOption],
       center: [lng, lat],
       zoom: zoom
     });
@@ -121,18 +129,19 @@ export default function Map() {
     });
   });
 
+
   return (
     <AppContainer>
       <Topbar>
-      <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <FormControl>
             <Search>
               <FormLabel> <Subheader>Enter Zip Code</Subheader></FormLabel>
               <Inputdiv>
-                <Input  placeholder= "12180"
-                        type="text"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}/>
+                <Input placeholder="12180"
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)} />
               </Inputdiv>
               <Button colorScheme='purple' type='submit'>
                 Submit
@@ -143,18 +152,27 @@ export default function Map() {
       </Topbar>
       <Row>
         <Sidebar>
+          <div>
+            <select onChange={(e) => setSelectedOption(e.target.value)}>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <LongLat>
-            Longitude: {lng}  <br/> Latitude: {lat} <br/> Zoom: {zoom}
+            Longitude: {lng}  <br /> Latitude: {lat} <br /> Zoom: {zoom}
           </LongLat>
           <IncentiveText>Hover for more information</IncentiveText>
 
           {inc1 && <Incentive1 id='I1'>
             <Tooltip
               label="Solar tax credits are primarily governed by the federal government and are designed to incentivize the adoption of solar energy systems. The two main federal solar tax credits are the Investment Tax Credit (ITC) and the Residential Renewable Energy Tax Credit. These credits offer over 30% back on the cost of a solar project."
-            >             
+            >
               <IncentiveHeader>
-              State Tax Credit
-              </IncentiveHeader>  
+                State Tax Credit
+              </IncentiveHeader>
             </Tooltip>
           </Incentive1>}
 
@@ -248,7 +266,6 @@ const Incentive3 = styled.section`
   background-color: #FFD16670;
   padding-top: 30px;
   padding-bottom:30px;
-
 `
 
 const IncentiveHeader = styled.h1`
