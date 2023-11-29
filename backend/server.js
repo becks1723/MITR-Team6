@@ -167,7 +167,10 @@ app.get('/incentives/:zipcode/:types?', async function(req, res) {
     var zipcode = req.params.zipcode;
     var types = req.params.types;
 
-    var incentives = [];
+    var incentives = new Map();
+    incentives.set('A', []);
+    incentives.set('C', []);
+    incentives.set('T', []);
     if(!types) {
       types = ['A', 'C', 'T'];
     }
@@ -184,14 +187,14 @@ app.get('/incentives/:zipcode/:types?', async function(req, res) {
         arr = await TC.find({zipcodes: zipcode});
         console.log("T", arr);
       }
-      if(arr.length > 0) {
-        for(var j = 0; j < arr.length; j++) {
-          incentives.push(arr[j]);
-        }
-      }
+      // if(arr.length > 0) {
+      //   for(var j = 0; j < arr.length; j++) {
+      //     incentives.push(arr[j]);
+      //   }
+      // }
+      incentives.set(types[i], arr);
     }
-
-    res.send(incentives);
+    res.send(Array.from(incentives, ([type, data]) => ({type, data})));
 });
 
 //zipcode API call for geospatial data
