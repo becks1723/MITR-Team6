@@ -27,7 +27,7 @@ export default function Map() {
     e.preventDefault();
     console.log(`Address: ${address}`);
     try {
-      let result = await fetch('http://localhost:5000/zipcode/' + address, { method: 'GET', mode: 'cors' });
+      let result = await fetch('http://localhost:3001/zipcode/' + address, { method: 'GET', mode: 'cors' });
       if (!result.ok) {
         throw new Error(`Failed with status ${result.status}`);
       }
