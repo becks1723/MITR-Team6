@@ -78,6 +78,19 @@ export default function Map() {
   //   }
   // }
 
+  async function checkInc1() {
+    try {
+      let result = await fetch('http://localhost:3001/incentives/' + address, { method: 'GET', mode: 'cors' });
+      if (!result.ok) {
+        throw new Error(`Failed with status ${result.status}`);
+      }
+      let data = await result.json();
+      console.log(data)
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+
   function addLayer() {
     if (!map.current || !map.current.isStyleLoaded()) {
       return; // Map or map style not loaded yet
@@ -152,6 +165,7 @@ export default function Map() {
       </Topbar>
       <Row>
         <Sidebar>
+          <button onClick={checkInc1}>CHECK 1</button>
           <div>
             <select onChange={(e) => setSelectedOption(e.target.value)}>
               {options.map((option) => (
