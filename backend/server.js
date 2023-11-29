@@ -17,7 +17,7 @@ app.use(express.json());
 const mongoose = require('mongoose');
 const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/Incentives-Data?retryWrites=true&w=majority'; 
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-const schema = new mongoose.Schema({index: {type: Number, unique: true}, name: String, state: {type: String, required: true}, zipcodes: [Number], description: String /*put incentive data here*/});
+const schema = new mongoose.Schema({index: {type: Number, unique: true}, name: String, state: {type: String, required: true}, zipcodes: [Number], description: String});
 const Adder = mongoose.model('adders', schema);
 const EC = mongoose.model('energy-communities', schema);
 const TC = mongoose.model('tribal-communities', schema);
