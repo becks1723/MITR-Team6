@@ -6,7 +6,8 @@ import {
   FormLabel,
   Button,
   Input,
-  Tooltip
+  Tooltip,
+  Select
 } from '@chakra-ui/react'
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmVraTE3MjMiLCJhIjoiY2xubmN0aHR0MDN3dDJscDFjb3dwcnJ2biJ9.7yw3B1pSgWFIC425BveDOQ';
 
@@ -153,18 +154,21 @@ export default function Map() {
       <Row>
         <Sidebar>
           <div>
-            <select onChange={(e) => setSelectedOption(e.target.value)}>
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <SelectSection>
+              <IncentiveText>Map Type</IncentiveText>
+              <Select color={"black"} bg={"white"} onChange={(e) => setSelectedOption(e.target.value)}>
+                {options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </SelectSection>
           </div>
           <LongLat>
             Longitude: {lng}  <br /> Latitude: {lat} <br /> Zoom: {zoom}
           </LongLat>
-          <IncentiveText>Hover for more information</IncentiveText>
+          <IncentiveText>Hover the boxes below for more information</IncentiveText>
 
           {inc1 && <Incentive1 id='I1'>
             <Tooltip
@@ -275,6 +279,7 @@ const IncentiveHeader = styled.h1`
 
 const IncentiveText = styled.p`
   margin-top: 10px;
+  font-size: small;
 `
 
 const Row = styled.div`
@@ -300,4 +305,12 @@ const Subheader = styled.h2`
   font-size: 18px;
   font-weight: bolder;
   color: black;
+`
+
+const SelectSection = styled.div`
+  margin: 0 10px 10px 10px;
+  background-color: #791E9430;
+  padding: 10px;
+  border-radius: 12px;
+
 `
