@@ -208,7 +208,8 @@ server.listen(PORT, () => {
 
 //zipcode API call for geospatial data
 const {MongoClient} = require('mongodb');
-const client = new MongoClient(mongoUri, {useNewUrlParser: true, useUnifiedTopology: true});
+const uri = "mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/";
+const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 app.get("/zipcode/:number", async function (req, res) {
   var zip = req.params.number;
   await client.connect();
