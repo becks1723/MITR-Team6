@@ -15,18 +15,14 @@ app.use(express.json());
 
 //MongoDB connection
 const mongoose = require('mongoose');
-// const fs = require('fs');
-// const ZipModel = require('./Models/zipModel');
 const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/Incentives-Data?retryWrites=true&w=majority'; 
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
 const schema = new mongoose.Schema({index: {type: Number, unique: true}, name: String, state: {type: String, required: true}, zipcodes: [Number], description: String /*put incentive data here*/});
 const Adder = mongoose.model('adders', schema);
 const EC = mongoose.model('energy-communities', schema);
 const TC = mongoose.model('tribal-communities', schema);
-// const timeSchema = new mongoose.Schema({/*_id: {type: ObjectID, required: true}, index: {type: Int32, required: true},*/ milliseconds: {type: Number/*INT32*/, required: true}, year: {type: Number/*INT32*/, required: true}, month: {type: Number/*INT32*/, required: true}, day: {type: Number/*INT32*/, required: true}});
-// const LastUpdated = /*mongoose*/connection.model('Last-Updated', timeSchema);
+
 const adderData = require('./Data/test.json');
-// console.log(testData);
 
 const root = path.join(__dirname, '..', 'team6', 'build');
 app.use(express.static(root));
@@ -164,40 +160,18 @@ app.post('/import-json', async (req, res) => {
 });
 
 
-//refresh database
-async function refreshDB() {
-    // const today = new Date();
-    // const data = await /*new LastUpdated({milliseconds: today.getTime(), year: today.getFullYear(), month: today.getMonth(), day: today.getDate()});*/ LastUpdated.find();
-    // console.log(data);
-    // // await data.save();
-    // if((await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec()) != []) {
-    //     console.log("works");
-    //     console.log(await LastUpdated.find().where('milliseconds').lt(today.getTime()-2628000000).exec());
-    // }
-}
-//test
-//all incentives endpoint
-//types is an array, with possible values of 'A', 'C', 'T'
-// app.get('/all/:types?', async function(req, res) {
-//     var types = req.params.type;
-
-
-// });
-
 //incentives by zip code endpoint
 //types is an optional array, with possible element values of 'A', 'C', 'T'
 //if no types array is given, will default to all types
 app.get('/:zipcode/:types?', async function(req, res) {
     var zipcode = req.params.zipcode;
     var types = req.params.types;
-    //JSON.parse(req.params.types);
 
     var incentives = [];
     if(!types) {
       types = ['A', 'C', 'T'];
     }
     console.log(types);
-    // console.log(await TC.find());
     for(var i = 0; i < types.length; i++) {
       var arr = [];
       if(types[i] == 'A') {
@@ -211,18 +185,11 @@ app.get('/:zipcode/:types?', async function(req, res) {
         console.log("T", arr);
       }
       if(arr.length > 0) {
-        // console.log("arr again", arr);
-        // incentives.concat(arr);
         for(var j = 0; j < arr.length; j++) {
           incentives.push(arr[j]);
         }
-        // console.log("Incentives", incentives);
       }
     }
-    // console.log(incentives);
-
-    // const newTC = await new TC({index: 3, name: "Resighini Rancheria, California", state: "California", zipcodes: [95548], description: "Tribal Community"})
-    // await newTC.save();
 
     res.send(incentives);
 });
@@ -231,20 +198,15 @@ app.get('/:zipcode/:types?', async function(req, res) {
 //serve front end
 app.get('*', (req, res) => {
   //maybe refresh database here
-  // refreshDB();
   //make sure to build the front end in order to serve
-  // res.sendFile(__dirname + '/../team6/build/index.html');
-  // console.log(__dirname);
   res.sendFile(path.resolve('../team6/build/index.html'));
 });
-
-// app.use(express.static(__dirname + '/../team6/build'));
 
 server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`)
 });
 
-//Becky's zipcode API call
+//zipcode API call for geospatial data
 const {MongoClient} = require('mongodb');
 const client = new MongoClient(mongoUri, {useNewUrlParser: true, useUnifiedTopology: true});
 app.get("/zipcode/:number", async function (req, res) {
