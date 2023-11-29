@@ -14,9 +14,9 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYmVraTE3MjMiLCJhIjoiY2xubmN0aHR0MDN3dDJscDFjb
 export default function Map() {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const mapStyle = ['mapbox://styles/mapbox/streets-v12', 'mapbox://styles/mapbox/light-v11', 'mapbox://styles/mapbox/dark-v11', 'mapbox://styles/mapbox/satellite-streets-v12', 'mapbox://styles/mapbox/navigation-day-v1', 'mapbox://styles/mapbox/navigation-night-v1']
+  const mapStyles = ['mapbox://styles/mapbox/streets-v12', 'mapbox://styles/mapbox/light-v11', 'mapbox://styles/mapbox/dark-v11', 'mapbox://styles/mapbox/satellite-streets-v12', 'mapbox://styles/mapbox/navigation-day-v1', 'mapbox://styles/mapbox/navigation-night-v1']
   const options = [{ label: 'Streets', value: 0 }, { label: 'Light', value: 1 }, { label: 'Dark', value: 2 }, { label: 'Satellite', value: 3 }, { label: 'Navigation Day', value: 4 }, { label: 'Navigation Night', value: 5 }];
-  const [selectedOption, setSelectedOption] = useState(0);
+  const [mapStyle, setMapStyle] = useState(mapStyles[0])
   const [lng, setLng] = useState(-121.9);
   const [lat, setLat] = useState(37.35);
   const [zoom, setZoom] = useState(12);
@@ -26,11 +26,14 @@ export default function Map() {
   const [inc1, setShow1] = useState(true);
   const [inc2, setShow2] = useState(true);
   const [inc3, setShow3] = useState(true);
-  const inc1Active = ['#EF476F70', '#EF476F'];
-  const inc2Active = ['#26547C70', '#26547C'];
-  const inc3Active = ['#FFD16670', '#FFD166'];
-  const notActive = []
+  const [inc1Color, setinc1Color] = useState('#e0e0e0')
+  const [inc2Color, setinc2Color] = useState('#e0e0e0')
+  const [inc3Color, setinc3Color] = useState('#e0e0e0')
 
+
+  // ['#EF476F70', '#EF476F'];
+  // ['#26547C70', '#26547C'];
+  // ['#FFD16670', '#FFD166'];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,14 +82,28 @@ export default function Map() {
   //   }
   // }
 
-  async function checkInc1() {
+
+
+  async function checkInc() {
+    console.log("IN")
     try {
       let result = await fetch('http://localhost:3001/incentives/' + address, { method: 'GET', mode: 'cors' });
       if (!result.ok) {
         throw new Error(`Failed with status ${result.status}`);
       }
       let data = await result.json();
-      console.log(data)
+      if (data[0].data.length != 0) {
+        console.log("1 is checked and has:", data[0].data.length)
+        setinc1Color('#EF476F70')
+      }
+      if (data[1].data.length != 0) {
+        console.log("2 is checked and has:", data[1].data.length)
+        setinc2Color('#26547C70')
+      }
+      if (data[2].data.length != 0) {
+        console.log("3 is checked and has:", data[2].data.length)
+        setinc3Color('#FFD16670')
+      }
     } catch (error) {
       console.error('Fetch error:', error);
     }
@@ -125,13 +142,18 @@ export default function Map() {
       zoom: 12
     });
     console.log(mini);
+
+    checkInc()
   }
 
   useEffect(() => {
-    if (map.current) return;
+    if (map.current) {
+      map.current.setStyle(mapStyle)
+      return;
+    }
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: mapStyle[selectedOption],
+      style: mapStyle,
       center: [lng, lat],
       zoom: zoom
     });
@@ -141,7 +163,7 @@ export default function Map() {
       setLat(map.current.getCenter().lat.toFixed(4));
       setZoom(map.current.getZoom().toFixed(2));
     });
-  });
+  }, [mapStyle]);
 
 
   return (
@@ -166,11 +188,10 @@ export default function Map() {
       </Topbar>
       <Row>
         <Sidebar>
-          <button onClick={checkInc1}>CHECK 1</button>
           <div>
             <SelectSection>
               <IncentiveText>Map Type</IncentiveText>
-              <Select color={"black"} bg={"white"} onChange={(e) => setSelectedOption(e.target.value)}>
+              <Select color={"black"} bg={"white"} onChange={(e) => { setMapStyle(mapStyles[e.target.value]); }}>
                 {options.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -184,7 +205,7 @@ export default function Map() {
           </LongLat>
           <IncentiveText>Hover the boxes below for more information</IncentiveText>
 
-          {inc1 && <Incentive1 id='I1'>
+          {inc1 && <Incentive1 id='I1' style={{ 'border': '2px solid #EF476F', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc1Color}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
             <Tooltip
               label="Solar tax credits are primarily governed by the federal government and are designed to incentivize the adoption of solar energy systems. The two main federal solar tax credits are the Investment Tax Credit (ITC) and the Residential Renewable Energy Tax Credit. These credits offer over 30% back on the cost of a solar project."
             >
@@ -194,7 +215,7 @@ export default function Map() {
             </Tooltip>
           </Incentive1>}
 
-          {inc2 && <Incentive2 id='I2'>
+          {inc2 && <Incentive2 id='I2' style={{ 'border': '2px solid #26547C', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc2Color}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
             <Tooltip
               label="This incentive provides a bonus of up to 10% for production tax credits and 10 percentage points for investment tax credits for projects in energy communities."
             >
@@ -204,7 +225,7 @@ export default function Map() {
             </Tooltip>
           </Incentive2>}
 
-          {inc3 && <Incentive3 id='I3'>
+          {inc3 && <Incentive3 id='I3' style={{ 'border': '2px solid #FFD166', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc3Color}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
             <Tooltip label="Tribes can access tax credits of 30–70% for renewable energy projects. There is also a bonus tax credit for projects on American Indian lands or that serve tribal housing and residences.">
               <IncentiveHeader>
                 Tribal Areas
@@ -260,30 +281,15 @@ const LongLat = styled.div`
 `;
 
 const Incentive1 = styled.section`
-  border: 2px solid #EF476F;
-  border-radius: 12px;
-  margin: 10px;
-  background-color: #EF476F70;
-  padding-top: 30px;
-  padding-bottom:30px;
+
 `
 
 const Incentive2 = styled.section`
-  border: 2px solid #26547C;
-  border-radius: 12px;
-  margin: 10px;
-  background-color: #26547C70;
-  padding-top: 30px;
-  padding-bottom:30px;
+
 `
 
 const Incentive3 = styled.section`
-  border: 2px solid #FFD166;
-  border-radius: 12px;
-  margin: 10px;
-  background-color: #FFD16670;
-  padding-top: 30px;
-  padding-bottom:30px;
+
 `
 
 const IncentiveHeader = styled.h1`
