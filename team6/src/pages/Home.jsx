@@ -4,11 +4,30 @@ import bgPhoto from "../assets/san-jose.png";
 import { ReactComponent as Logo } from "../crown.svg";
 
 function Home() {
+  const postTest = () => {
+    fetch('http://localhost:3001/import-json', {
+      "method": "POST",
+      // "Access-Control-Allow-Origin": "*"
+    });
+  }
+
+  const getTest = () => {
+    var queryString = 'http://localhost:3001/95932/' + ['T', 'C']; //+ JSON.stringify(['T']);
+    fetch(queryString, {
+      "method": "GET"
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      });
+  }
 
   return (
     <HomeContainer >
       <InnerHomeContainer>
         <Logo/>
+        <button onClick={postTest}>post</button>
+        <button onClick={getTest}>get Tribal</button>
         <Header>Welcome to ZAMP</Header>
         <Subheader>Mission Statement...</Subheader>
         <p>blah blah blah</p>
