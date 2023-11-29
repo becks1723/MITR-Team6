@@ -20,7 +20,7 @@ function Footer() {
             {/* Text indicating the creator */}
             <FooterText>Created by Team 6:</FooterText>
             {/* GitHub icon link */}
-            <IconButton variant="none" as="a" href="/" aria-label="Github" icon={<FaGithubSquare fontSize="1.5rem" color="#FFFFFF" />} />
+            <IconButton variant="none" as="a" href="https://github.com/becks1723/MITR-Team6" aria-label="Github" icon={<FaGithubSquare fontSize="1.5rem" color="#FFFFFF" />} />
           </Created>
         </FooterRight>
       </FooterInnerContainer>
