@@ -17,7 +17,7 @@ app.use(express.json());
 const mongoose = require('mongoose');
 const mongoUri = 'mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/Incentives-Data?retryWrites=true&w=majority';
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-const schema = new mongoose.Schema({index: {type: Number, unique: true}, name: String, state: {type: String, required: true}, zipcodes: [Number], description: String});
+const schema = new mongoose.Schema({ index: { type: Number, unique: true }, name: String, state: { type: String, required: true }, zipcodes: [Number], description: String });
 const Adder = mongoose.model('adders', schema);
 const EC = mongoose.model('energy-communities', schema);
 const TC = mongoose.model('tribal-communities', schema);
@@ -167,33 +167,33 @@ app.get('/incentives/:zipcode/:types?', async function (req, res) {
   var zipcode = req.params.zipcode;
   var types = req.params.types;
 
-    var incentives = new Map();
-    incentives.set('A', []);
-    incentives.set('C', []);
-    incentives.set('T', []);
-    if(!types) {
-      types = ['A', 'C', 'T'];
+  var incentives = new Map();
+  incentives.set('A', []);
+  incentives.set('C', []);
+  incentives.set('T', []);
+  if (!types) {
+    types = ['A', 'C', 'T'];
+  }
+  console.log(types);
+  for (var i = 0; i < types.length; i++) {
+    var arr = [];
+    if (types[i] == 'A') {
+      arr = await Adder.find({ zipcodes: zipcode });
+      console.log("A", arr);
+    } else if (types[i] == 'C') {
+      arr = await EC.find({ zipcodes: zipcode });
+      console.log("C", arr);
+    } else if (types[i] == 'T') {
+      arr = await TC.find({ zipcodes: zipcode });
+      console.log("T", arr);
     }
-    console.log(types);
-    for(var i = 0; i < types.length; i++) {
-      var arr = [];
-      if(types[i] == 'A') {
-        arr = await Adder.find({zipcodes: zipcode});
-        console.log("A", arr);
-      } else if(types[i] == 'C') {
-        arr = await EC.find({zipcodes: zipcode});
-        console.log("C", arr);
-      } else if(types[i] == 'T') {
-        arr = await TC.find({zipcodes: zipcode});
-        console.log("T", arr);
-      }
-      // if(arr.length > 0) {
-      //   for(var j = 0; j < arr.length; j++) {
-      //     incentives.push(arr[j]);
-      //   }
-      // }
-      incentives.set(types[i], arr);
-    }
+    // if(arr.length > 0) {
+    //   for(var j = 0; j < arr.length; j++) {
+    //     incentives.push(arr[j]);
+    //   }
+    // }
+    incentives.set(types[i], arr);
+  }
 });
 
 //zipcode API call for geospatial data
