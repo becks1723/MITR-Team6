@@ -42,20 +42,11 @@ function removeTags(str) {
 
 app.post('/import-json', async (req, res) => {
   try {
-    //compile zipcodes by state
-    // zipcodesMap = new Map();
-    //here
-
-    //energy communities
-    // zipToCountyMap = new Map();
     const file = xlsx.readFile('./Data/zip_code_database.xls');
     let data = [];
     const sheets = file.SheetNames;
     for(let i = 0; i < sheets.length; i++) { 
       const temp = xlsx.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
-      // temp.forEach((res) => {
-      //   // console.log(res)
-      // });
     }
     countyClosureMap = new Set();
     let directory_name = './Data/';
@@ -84,7 +75,6 @@ app.post('/import-json', async (req, res) => {
       coal_closure_filedata.forEach((row, index) => {
         countyClosureMap.add(row["County_Name"]);
       });
-      //console.log(countyClosureMap);
       var zipcode_closure_workbook = xlsx.readFile(zipcode_closure_filePath);
       var zipcode_closure_worksheet = zipcode_closure_workbook.Sheets[zipcode_closure_workbook.SheetNames[0]];
       var zipcode_closure_filedata = xlsx.utils.sheet_to_json(zipcode_closure_worksheet);
@@ -108,17 +98,13 @@ app.post('/import-json', async (req, res) => {
       var tribalCommunities_filedata = xlsx.utils.sheet_to_json(tribalCommunities_worksheet);
       tribalCommunities_filedata.forEach((row, index) => {
           if(tribalCommunitiesMap.has(row["Tribe"]) == false) {
-            tribalCommunitiesMap.set(row["Tribe"], [[],row["state"]]);
+            tribalCommunitiesMap.set(row["Tribe"], [[],row["State"]]);
           }
           tribalCommunitiesMap.get(row["Tribe"])[0].push(row["ZIPCode"]);
       })
     } else {
       console.log(`File(s) not found`);
     }
-
-    console.log(tribalCommunitiesMap);
-    // console.log(stateToZipMap);
-    // console.log(cityToZipMap);
 
     var initialsToStates = new Map();
     initialsToStates.set("CA", "California");
@@ -136,80 +122,46 @@ app.post('/import-json', async (req, res) => {
     var indexCounter = 0;
     for(var i = 0; i < adderData.data.length; i++) {
       if(adderData.data[i].State == "New York" || adderData.data[i].State == "Colorado" || adderData.data[i].State == "California" || adderData.data[i].State == "Florida" || adderData.data[i].State == "Illinois") {
-        // console.log(i, " name: ", adderData.data[i].Name, " state: ", adderData.data[i].State, " summary: ", adderData.data[i].Summary);
         if(removeTags(adderData.data[i].Summary).toString().toLowerCase().indexOf("solar") > -1 && adderData.data[i].CategoryName == 'Financial Incentive') {
           var applicableZipcodes = stateToZipMap.get(initialsToStates.get(adderData.data[i].State));
           if(adderData.data[i].Cities.length > 0 && adderData.data[i].ImplementingSectorName == "Local") {
-            console.log(adderData.data[i].Cities[0].name);
             applicableZipcodes = cityToZipMap.get(adderData.data[i].Cities[0].name);
           }
           const newAdder = await new Adder({index: indexCounter, name: removeTags(adderData.data[i].Name), state: removeTags(adderData.data[i].State), zipcodes: applicableZipcodes, description: removeTags(adderData.data[i].Summary)});
           // await newAdder.save();
-          // console.log(initialsToStates.get(adderData.data[i].State));
-          // console.log(stateToZipMap.get(initialsToStates.get(adderData.data[i].State)));
-          // if(adderData.data[i].Cities.length > 0 && adderData.data[i].ImplementingSectorName == "Local") 
-            console.log(newAdder);
-          
-          // if(adderData.data[i].ImplementingSectorName == "Local") {
-          //   console.log(adderData.data[i]);
-          // }
-          
           indexCounter++;
-          // console.log(i, removeTags(adderData.data[i].Name), removeTags(adderData.data[i].State), removeTags(adderData.data[i].Summary));
         }
         
       }
     }
-
-    //here
     
-
+    //input EC data
     indexCounter = 0;
     for(var [county, arr] of zipToCountyMap) {
       if(arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
         const newEC = await new EC({index: indexCounter, name: "Energy Community Tax Credit Bonus", state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Applies a bonus of up to 10% (for production tax credits) or 10 percentage points (for investment tax credits) for projects, facilities, and technologies located in energy communities."});
         // await newEC.save();
-        // console.log(newEC);
+        console.log(newEC);
         indexCounter++;
       }
     }
 
-    /*each element of tribalZipCodes should be an object modeled as such:
-    {
-      "tribe": "insert tribe name here",
-      "state": "insert state here",
-      "zipcodes": [insert zipcodes here]
-    }
-    */
-    var tribalZipCodes = [];
-    //read in data from csv into tribalZipCodes here
-
-    for(var i = 0; i < tribalZipCodes; i++) {
-      if(tribalZipCodes[i].state == "CA" || tribalZipCodes[i].state == "CO" || tribalZipCodes[i].state == "NY" || tribalZipCodes[i].state == "FL" || tribalZipCodes[i].state == "IL") {
-        const newTC = await new TC({index: i, name: tribalZipCodes[i].tribe, state: initialsToStates.get(tribalZipCodes[i].state), zipcodes: tribalZipCodes[i].zipcodes, description: "Tribal Community"});
+    //input tribal data
+    indexCounter = 0;
+    for(var [tribe, arr] of tribalCommunitiesMap) {
+      if(arr[1] == "CA" || arr[1] == "CO" || arr[1] == "NY" || arr[1] == "FL" || arr[1] == "IL") {
+        const newTC = await new TC({index: indexCounter, name: tribe, state: initialsToStates.get(arr[1]), zipcodes: arr[0], description: "Tribal Community"});
         // await newTC.save();
-        // console.log(newTC);
+        indexCounter++;
       }
     }
 
-    // const data = await fs.readFile('./Data/test.json', 'utf8');
-    // const jsonData = JSON.parse(data);
-    // await ZipModel.insertMany(jsonData);
     res.send("Data imported successfully");
   } catch (error) {
     console.error("Error during file reading or data import", error);
     res.status(500).send("An error occurred during the import");
   }
 });
-
-
-// {
-//   "index": 0,
-//   "name": "",
-//   "state": "",
-//   "zipcodes": [],
-//   "description": ""
-// }
 
 
 //refresh database
