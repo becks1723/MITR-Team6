@@ -3,11 +3,9 @@ const PORT = 3001;
 const app = express();
 var server = require('http').Server(app);
 const fs = require('fs');
-//const xlsx = require('xlsx');
+const xlsx = require('xlsx');
 var path = require('path');
 
-//might need to change later
-//currently allows anyone to call endpoints
 const cors = require('cors');
 app.use(cors());
 
@@ -187,11 +185,6 @@ app.get('/incentives/:zipcode/:types?', async function (req, res) {
       arr = await TC.find({ zipcodes: zipcode });
       console.log("T", arr);
     }
-    // if(arr.length > 0) {
-    //   for(var j = 0; j < arr.length; j++) {
-    //     incentives.push(arr[j]);
-    //   }
-    // }
     incentives.set(types[i], arr);
   }
   res.send(Array.from(incentives, ([type, data]) => ({type, data})));
