@@ -163,7 +163,7 @@ app.post('/import-json', async (req, res) => {
 //incentives by zip code endpoint
 //types is an optional array, with possible element values of 'A', 'C', 'T'
 //if no types array is given, will default to all types
-app.get('/:zipcode/:types?', async function(req, res) {
+app.get('/incentives/:zipcode/:types?', async function(req, res) {
     var zipcode = req.params.zipcode;
     var types = req.params.types;
 
@@ -194,21 +194,10 @@ app.get('/:zipcode/:types?', async function(req, res) {
     res.send(incentives);
 });
 
-
-//serve front end
-app.get('*', (req, res) => {
-  //maybe refresh database here
-  //make sure to build the front end in order to serve
-  res.sendFile(path.resolve('../team6/build/index.html'));
-});
-
-server.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`)
-});
-
 //zipcode API call for geospatial data
 const {MongoClient} = require('mongodb');
-const client = new MongoClient(mongoUri, {useNewUrlParser: true, useUnifiedTopology: true});
+const uri = "mongodb+srv://jyoungbar02:VvUQMIUhjrqViALD@solar-incentives.08p60z2.mongodb.net/";
+const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 app.get("/zipcode/:number", async function (req, res) {
   var zip = req.params.number;
   await client.connect();
@@ -220,4 +209,16 @@ app.get("/zipcode/:number", async function (req, res) {
   } else {
     res.send(obj).status(200);
   }
+});
+
+
+//serve front end
+app.get('*', (req, res) => {
+  //maybe refresh database here
+  //make sure to build the front end in order to serve
+  res.sendFile(path.resolve('../team6/build/index.html'));
+});
+
+server.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`)
 });
