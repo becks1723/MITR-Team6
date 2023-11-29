@@ -194,6 +194,7 @@ app.get('/incentives/:zipcode/:types?', async function (req, res) {
     // }
     incentives.set(types[i], arr);
   }
+  res.send(Array.from(incentives, ([type, data]) => ({type, data})));
 });
 
 //zipcode API call for geospatial data
