@@ -42,32 +42,33 @@ export default function Map() {
     if(map.current) {
     console.log(mini); // This will log the updated value of mini when it changes
     addLayer(); // Perform other actions after mini state update
-    changeIncentives();
+    //changeIncentives();
     }
   }, [mini]);
 
-  async function changeIncentives() {
-    let allIncentives = await fetch('put URL here');
-    if(!allIncentives.ok) {
-      throw new Error('You failed');
-    }
+  // Becky - don't delete dis function plez
+  // async function changeIncentives() {
+  //   let allIncentives = await fetch('put URL here');
+  //   if(!allIncentives.ok) {
+  //     throw new Error('You failed');
+  //   }
     
-    setShow1(true);
-    setShow2(true);
-    setShow3(true);
+  //   setShow1(true);
+  //   setShow2(true);
+  //   setShow3(true);
 
-    let test = {
-      "index": 0,
-      "name": "B",
-      "state": "",
-      "zipcodes": [],
-      "description": ""
-    }
+  //   let test = {
+  //     "index": 0,
+  //     "name": "B",
+  //     "state": "",
+  //     "zipcodes": [],
+  //     "description": ""
+  //   }
 
-    if (test.name == 'A') {
-      setShow1(false);
-    }
-  }
+  //   if (test.name == 'A') {
+  //     setShow1(false);
+  //   }
+  // }
 
   function addLayer() {
     if (!map.current || !map.current.isStyleLoaded()) {
