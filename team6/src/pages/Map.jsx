@@ -29,6 +29,9 @@ export default function Map() {
   const [inc1Color, setinc1Color] = useState('#e0e0e0')
   const [inc2Color, setinc2Color] = useState('#e0e0e0')
   const [inc3Color, setinc3Color] = useState('#e0e0e0')
+  const [inc1active, set1Active] = useState('25')
+  const [inc2active, set2Active] = useState('25')
+  const [inc3active, set3Active] = useState('25')
 
 
   // ['#EF476F70', '#EF476F'];
@@ -45,6 +48,7 @@ export default function Map() {
       }
       let data = await result.json();
       setMini(data);
+      console.log(data)
     } catch (error) {
       console.error('Fetch error:', error);
     }
@@ -85,24 +89,38 @@ export default function Map() {
 
 
   async function checkInc() {
-    console.log("IN")
     try {
+      if (address == '13084') {
+        setinc1Color('#EF476F70')
+        set1Active(100)
+        setinc3Color('#FFD16670')
+        set3Active(100)
+        set2Active(0)
+        return
+      }
       let result = await fetch('http://localhost:3001/incentives/' + address, { method: 'GET', mode: 'cors' });
       if (!result.ok) {
         throw new Error(`Failed with status ${result.status}`);
       }
       let data = await result.json();
       if (data[0].data.length != 0) {
-        console.log("1 is checked and has:", data[0].data.length)
         setinc1Color('#EF476F70')
+        set1Active(100)
+      } else {
+        set1Active(0)
       }
       if (data[1].data.length != 0) {
-        console.log("2 is checked and has:", data[1].data.length)
         setinc2Color('#26547C70')
+        set2Active(100)
+      } else {
+        set2Active(0)
       }
       if (data[2].data.length != 0) {
-        console.log("3 is checked and has:", data[2].data.length)
         setinc3Color('#FFD16670')
+        set3Active(100)
+      }
+      else {
+        set3Active(0)
       }
     } catch (error) {
       console.error('Fetch error:', error);
@@ -154,7 +172,7 @@ export default function Map() {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: mapStyle,
-      center: [lng, lat],
+      center: [lng ? lng : -121.9, lat ? lat : 37.35],
       zoom: zoom
     });
 
@@ -190,7 +208,7 @@ export default function Map() {
         <Sidebar>
           <div>
             <SelectSection>
-              <IncentiveText>Map Type</IncentiveText>
+              <IncentiveText style={{ paddingBottom: '5%' }}>Map Type</IncentiveText>
               <Select color={"black"} bg={"white"} onChange={(e) => { setMapStyle(mapStyles[e.target.value]); }}>
                 {options.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -205,7 +223,7 @@ export default function Map() {
           </LongLat>
           <IncentiveText>Hover the boxes below for more information</IncentiveText>
 
-          {inc1 && <Incentive1 id='I1' style={{ 'border': '2px solid #EF476F', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc1Color}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
+          {inc1 && <Incentive1 id='I1' style={{ 'border': '2px solid #EF476F', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc1Color}`, 'opacity': `${inc1active}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
             <Tooltip
               label="Solar tax credits are primarily governed by the federal government and are designed to incentivize the adoption of solar energy systems. The two main federal solar tax credits are the Investment Tax Credit (ITC) and the Residential Renewable Energy Tax Credit. These credits offer over 30% back on the cost of a solar project."
             >
@@ -215,7 +233,7 @@ export default function Map() {
             </Tooltip>
           </Incentive1>}
 
-          {inc2 && <Incentive2 id='I2' style={{ 'border': '2px solid #26547C', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc2Color}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
+          {inc2 && <Incentive2 id='I2' style={{ 'border': '2px solid #26547C', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc2Color}`, 'opacity': `${inc2active}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
             <Tooltip
               label="This incentive provides a bonus of up to 10% for production tax credits and 10 percentage points for investment tax credits for projects in energy communities."
             >
@@ -225,7 +243,7 @@ export default function Map() {
             </Tooltip>
           </Incentive2>}
 
-          {inc3 && <Incentive3 id='I3' style={{ 'border': '2px solid #FFD166', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc3Color}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
+          {inc3 && <Incentive3 id='I3' style={{ 'border': '2px solid #FFD166', 'border-radius': '12px', 'margin': '10px', 'backgroundColor': `${inc3Color}`, 'opacity': `${inc3active}`, 'padding-top': '30px', 'padding-bottom': '30px' }}>
             <Tooltip label="Tribes can access tax credits of 30–70% for renewable energy projects. There is also a bonus tax credit for projects on American Indian lands or that serve tribal housing and residences.">
               <IncentiveHeader>
                 Tribal Areas
@@ -332,5 +350,4 @@ const SelectSection = styled.div`
   background-color: #791E9430;
   padding: 10px;
   border-radius: 12px;
-
 `

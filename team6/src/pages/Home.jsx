@@ -26,14 +26,14 @@ function Home() {
     fetch('http://localhost:3001/zipcode/11355', {
       "method": "GET"
     })
-    .then(response => response.json())
-    .then(data => console.log(data));
+      .then(response => response.json())
+      .then(data => console.log(data));
   }
 
   return (
     <HomeContainer >
       <InnerHomeContainer>
-        <Logo/>
+        <Logo />
         <Header>Welcome to SolarFinder</Header>
         <Subheader>Bring solar to your local community today!</Subheader>
         <p>Please access the <b>Map</b> to identify locations where government incentives for solar energy can be obtained.</p>
@@ -50,6 +50,7 @@ const HomeContainer = styled.div`
   justify-content: center;
   min-height: calc( 100vh - 150px );
   background-image: url(${bgPhoto});
+  
   text-align: center;
   padding: 30px;
 `
