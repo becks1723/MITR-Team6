@@ -21,6 +21,7 @@ const TC = mongoose.model('Tribal-Communities', schema);
 const timeSchema = new mongoose.Schema({milliseconds: {type: Number, required: true}, year: {type: Number, required: true}, month: {type: Number, required: true}, day: {type: Number, required: true}});
 const LastUpdated = mongoose.model('Last-Updated', timeSchema);
 
+
 //serve front end
 app.get('/*', (req, res) => {
     //maybe refresh database here
@@ -60,3 +61,17 @@ app.use(express.static(__dirname + '/team6/build'));
 server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`)
 });
+
+//Get zipcode data for the front end
+app.get("/zipcode-layer/:number", async function (req, res) {
+    var zip = req.params.number;
+    await client.connect();
+    const database = client.db("zipcodes");
+    const collect = database.collection("zip");
+    var obj = await collect.findOne({ "features.properties.ZCTA5CE20" : zip});
+    if(!obj) {
+      res.send("Object Not Found!").status(404);
+    } else {
+      res.send(obj).status(200);
+    }
+  });
